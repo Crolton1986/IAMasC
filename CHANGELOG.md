@@ -6,6 +6,7 @@ All notable changes are recorded here. The format follows [Keep a Changelog](htt
 
 ### Added
 
+- Config engine (`src/IAMasC.Config`): JSON Schemas for every kind, workspace and server settings loading, cross-file checks, plaintext-secret detection, and `iamasc validate` with text and JSON output.
 - Repository foundation: Apache-2.0 license, contribution process, PR and issue templates, CODEOWNERS.
 - CI quality gates: PSScriptAnalyzer with InjectionHunter, Pester on Ubuntu and Windows, markdown lint and link check.
 - Security gates: gitleaks, Trivy, CodeQL, actionlint, zizmor, dependency review, PowerShell module audit, AI security review.

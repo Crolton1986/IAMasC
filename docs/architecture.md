@@ -50,7 +50,7 @@ Each `src/` folder is a PowerShell module with its own tests under `tests/<Modul
 
 1. `server.ps1 -Settings <path>` reads `iamasc-server.yaml` (or `IAMASC_SETTINGS`).
 2. Each workspace in it has either `path:` (a local folder) or `repo:` (cloned into the data directory, with the workspaces feature). In the first slice, `path:` is enough; if the folder is a git repo, IAMasC commits there and pushes if a remote is set.
-3. Every YAML file is parsed with `powershell-yaml`, converted to JSON, and checked with `Test-Json -Schema` against `IAMasC.Config/schemas`. Errors name the file, line, and field.
+3. Every YAML file is parsed with `powershell-yaml`, and checked against the JSON Schemas in [`IAMasC.Config/schemas`](../src/IAMasC.Config/schemas) by a small built-in validator (`Test-Json` stopped reporting nested failures in PowerShell 7.6, so it isn't used). Errors name the file and the field path (`spec.roles[0].module`). powershell-yaml doesn't expose line numbers, so diagnostics don't include them yet.
 4. The loaded workspace is cached in memory and reloaded when files change (file watcher) or after IAMasC commits.
 
 `iamasc validate <folder>` runs steps 3 and 4 and exits non-zero on any error, so workspace repos can run it in their own CI.
@@ -166,7 +166,7 @@ Each line is one feature branch and one pull request into `main`.
 
 ### Slice 1: IAMasC without providers
 
-1. `feature/config-engine`: `IAMasC.Config` with JSON Schemas for every kind, `iamasc validate`, `examples/` validated in CI.
+1. `feature/config-engine`: `IAMasC.Config` with JSON Schemas for every kind, `iamasc validate`, `examples/` validated in CI. **Done.**
 2. `feature/store`: `IAMasC.Store` with SQLite, migrations, and the audit log.
 3. `feature/web-shell`: Pode server, layout from the mockups, dev mode, `/health`, dashboard and people pages read from person files.
 4. `feature/new-hire`: new-hire and offboard forms write person files, with git commit when the folder is a repo.

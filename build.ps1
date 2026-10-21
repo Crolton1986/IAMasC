@@ -146,7 +146,7 @@ function Invoke-Package {
     $null = New-Item -ItemType Directory -Path $staging -Force
 
     # Ship only what runs in production. Tests, docs, and CI config stay out.
-    $include = @('server.ps1', 'src', 'routes', 'views', 'public', 'config', 'requirements.psd1', 'README.md', 'CHANGELOG.md')
+    $include = @('server.ps1', 'iamasc.ps1', 'src', 'routes', 'views', 'public', 'config', 'requirements.psd1', 'README.md', 'CHANGELOG.md')
     foreach ($item in $include) {
         $path = Join-Path $PSScriptRoot $item
         if (Test-Path $path) { Copy-Item $path -Destination $staging -Recurse }
