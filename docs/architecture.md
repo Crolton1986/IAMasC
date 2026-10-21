@@ -164,7 +164,7 @@ Both from the same code and the same release zip ([ADR 0010](adr/0010-hosting.md
 
 Each line is one feature branch and one pull request into `main`.
 
-**Slice 1: IAMasC without providers**
+### Slice 1: IAMasC without providers
 
 1. `feature/config-engine`: `IAMasC.Config` with JSON Schemas for every kind, `iamasc validate`, `examples/` validated in CI.
 2. `feature/store`: `IAMasC.Store` with SQLite, migrations, and the audit log.
@@ -173,7 +173,7 @@ Each line is one feature branch and one pull request into `main`.
 5. `feature/entra-signin`: Entra ID sign-in and role mapping.
 6. `feature/packaging`: Windows service wrapper and container image in the release pipeline.
 
-**Slice 2: the first provider**
+### Slice 2: the first provider
 
 1. `feature/provider-host`: protocol, `IAMasC.ProviderHost`, `IAMasC.ProviderSdk`, and a protocol test kit any provider can run.
 2. `feature/mock-provider`: `iamasc/mock` with every shape and failure knobs.
