@@ -1,0 +1,11 @@
+config:
+  MD013: false        # line length: prose wraps naturally
+  MD041: false        # PR template starts at "## What" by design
+  MD033:
+    allowed_elements: [details, summary, br, kbd]
+  MD024:
+    siblings_only: true # CHANGELOG repeats "Added"/"Changed" under each version
+ignores:
+  - 'out/**'
+  - 'dist/**'
+  - 'docs/mockups/vendor/**'
