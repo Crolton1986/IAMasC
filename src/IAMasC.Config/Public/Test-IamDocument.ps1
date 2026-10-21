@@ -16,12 +16,8 @@ function Test-IamDocument {
         $display = Get-IamRelativePath -Root $Root -Path $Document.Path
         if ($null -eq $Document.Data) { return }
 
-        $json = $Document.Data | ConvertTo-Json -Depth 64 -Compress
-        $errors = $null
-        $null = Test-Json -Json $json -Schema (Get-IamSchema -Kind $Document.Kind) -ErrorVariable errors -ErrorAction SilentlyContinue
-        foreach ($e in $errors) {
-            $parsed = ConvertTo-IamSchemaMessage -Raw $e.Exception.Message
-            ConvertTo-IamDiagnostic -Severity Error -File $display -Field $parsed.Field -Message $parsed.Message
+        foreach ($problem in Test-IamJsonSchema -Value $Document.Data -Schema (Get-IamSchema -Kind $Document.Kind)) {
+            ConvertTo-IamDiagnostic -Severity Error -File $display -Field $problem.Field -Message $problem.Message
         }
 
         foreach ($field in Find-IamPlaintextSecret -Node $Document.Data) {

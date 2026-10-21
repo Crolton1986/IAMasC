@@ -11,10 +11,27 @@ Describe 'Schemas' {
         $script:schemas = Get-ChildItem -Path $folder -Filter '*.schema.json' | ForEach-Object { @{ Name = $_.Name; Path = $_.FullName } }
     }
 
-    It '<Name> is a usable JSON Schema' -ForEach $schemas {
-        $schema = Get-Content -Path $Path -Raw
-        { Test-Json -Json '{}' -Schema $schema -ErrorAction SilentlyContinue } | Should -Not -Throw
-        ($schema | ConvertFrom-Json).'$schema' | Should -Be 'https://json-schema.org/draft/2020-12/schema'
+    It '<Name> is draft 2020-12 JSON Schema' -ForEach $schemas {
+        (Get-Content -Path $Path -Raw | ConvertFrom-Json).'$schema' | Should -Be 'https://json-schema.org/draft/2020-12/schema'
+    }
+
+    It '<Name> only uses keywords the validator supports' -ForEach $schemas {
+        $schema = Get-Content -Path $Path -Raw | ConvertFrom-Json -AsHashtable
+        InModuleScope IAMasC.Config -Parameters @{ Schema = $schema } {
+            function Get-Keyword($node) {
+                if ($node -is [Collections.IDictionary]) {
+                    foreach ($k in $node.Keys) {
+                        $k
+                        $v = $node[$k]
+                        if ($k -in 'properties') { foreach ($p in $v.Values) { Get-Keyword $p } }
+                        elseif ($k -in 'anyOf', 'oneOf') { foreach ($b in $v) { Get-Keyword $b } }
+                        elseif ($k -in 'items', 'additionalProperties', 'propertyNames') { Get-Keyword $v }
+                    }
+                }
+            }
+            $unsupported = @(Get-Keyword $Schema | Where-Object { $_ -notin $script:SupportedSchemaKeywords } | Select-Object -Unique)
+            $unsupported | Should -BeNullOrEmpty -Because 'Validator.ps1 would silently ignore them'
+        }
     }
 }
 
@@ -37,15 +54,47 @@ Describe 'Test-IamVersionConstraint' {
     }
 }
 
-Describe 'ConvertTo-IamFieldPath' {
-    It 'turns <Pointer> into <Expected>' -ForEach @(
-        @{ Pointer = ''; Expected = '' }
-        @{ Pointer = '/spec'; Expected = 'spec' }
-        @{ Pointer = '/spec/roles/0/module'; Expected = 'spec.roles[0].module' }
-        @{ Pointer = '/providers/iamasc~1workday'; Expected = 'providers.iamasc/workday' }
+Describe 'Test-IamJsonSchema' {
+    It 'reports <Case>' -ForEach @(
+        @{ Case = 'a wrong type'; Value = 'x'; Schema = @{ type = 'integer' }; Field = ''; Message = 'Expected integer, found string.' }
+        @{ Case = 'a missing field'; Value = [ordered]@{}; Schema = @{ type = 'object'; required = @('a', 'b') }; Field = ''; Message = 'Missing required field(s): a, b.' }
+        @{ Case = 'an unknown field'; Value = [ordered]@{ zz = 1 }; Schema = @{ type = 'object'; properties = @{}; additionalProperties = $false }; Field = 'zz'; Message = 'Unknown field*' }
+        @{ Case = 'a nested problem with its path'; Value = [ordered]@{ a = @([ordered]@{ b = 5 }) }; Schema = @{ properties = @{ a = @{ items = @{ properties = @{ b = @{ type = 'string' } } } } } }; Field = 'a[0].b'; Message = 'Expected string*' }
+        @{ Case = 'a value outside an enum'; Value = 'x'; Schema = @{ enum = @('a', 'b') }; Field = ''; Message = 'Must be one of: a, b.' }
+        @{ Case = 'a pattern mismatch'; Value = 'abc'; Schema = @{ type = 'string'; pattern = '^\d+$' }; Field = ''; Message = "'abc' isn't in the expected format*" }
+        @{ Case = 'a duplicate in a unique list'; Value = @('a', 'a'); Schema = @{ uniqueItems = $true }; Field = ''; Message = "'a' is listed more than once." }
+        @{ Case = 'no anyOf branch matching'; Value = 5; Schema = @{ anyOf = @(@{ type = 'string' }, @{ type = 'null' }) }; Field = ''; Message = 'Expected string or null, found integer.' }
+        @{ Case = 'two oneOf branches matching'; Value = [ordered]@{ repo = 'r'; path = 'p' }; Schema = @{ oneOf = @(@{ required = @('repo') }, @{ required = @('path') }) }; Field = ''; Message = 'Matches more than one*' }
+        @{ Case = 'a bad property name'; Value = [ordered]@{ Bogus = 1 }; Schema = @{ propertyNames = @{ enum = @('Pending') } }; Field = 'Bogus'; Message = "Name isn't allowed here*" }
     ) {
         InModuleScope IAMasC.Config -Parameters $_ {
-            ConvertTo-IamFieldPath -Pointer $Pointer | Should -Be $Expected
+            $problems = @(Test-IamJsonSchema -Value $Value -Schema $Schema)
+            $problems.Count | Should -Be 1
+            $problems[0].Field | Should -Be $Field
+            $problems[0].Message | Should -BeLike $Message
+        }
+    }
+
+    It 'accepts <Case>' -ForEach @(
+        @{ Case = 'an integer where a number is allowed'; Value = 3; Schema = @{ type = 'number' } }
+        @{ Case = 'a whole double as an integer'; Value = [double]3; Schema = @{ type = 'integer' } }
+        @{ Case = 'one matching anyOf branch'; Value = 'never'; Schema = @{ anyOf = @(@{ type = 'string'; pattern = '^[0-9]+d$' }, @{ const = 'never' }) } }
+        @{ Case = 'null where null is allowed'; Value = $null; Schema = @{ type = @('string', 'null') } }
+    ) {
+        InModuleScope IAMasC.Config -Parameters $_ {
+            @(Test-IamJsonSchema -Value $Value -Schema $Schema) | Should -BeNullOrEmpty
+        }
+    }
+}
+
+Describe 'Join-IamFieldPath' {
+    It 'joins <Parent> and <Child> into <Expected>' -ForEach @(
+        @{ Parent = ''; Child = 'spec'; Expected = 'spec' }
+        @{ Parent = 'spec'; Child = 'roles'; Expected = 'spec.roles' }
+        @{ Parent = 'spec.roles'; Child = 0; Expected = 'spec.roles[0]' }
+    ) {
+        InModuleScope IAMasC.Config -Parameters $_ {
+            Join-IamFieldPath -Parent $Parent -Child $Child | Should -Be $Expected
         }
     }
 }
