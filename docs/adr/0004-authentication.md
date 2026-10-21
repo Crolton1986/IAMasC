@@ -9,7 +9,7 @@ Some organizations are cloud-first with Entra ID, others are on-premises AD only
 
 ## Decision
 
-Support both methods, each switchable in config:
+Support both methods, each switchable in config. Entra ID ships first; AD form sign-in ships with the AD provider. A local dev mode (a fixed Admin user) exists for development and refuses to start unless every endpoint binds to loopback.
 
 - Entra ID through OpenID Connect (Pode's Azure AD scheme), roles from the `groups` claim.
 - Active Directory through Pode's Windows AD form authentication (LDAP bind), roles from group membership.
