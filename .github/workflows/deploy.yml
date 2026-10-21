@@ -1,0 +1,89 @@
+name: deploy
+
+# Deploys a published release to a Windows server through a self-hosted runner that lives on
+# that server, so the server needs no inbound ports. Stays off until repo variable
+# DEPLOY_ENABLED is 'true' (set it once the runners and environments exist; see docs/deployment.md).
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to deploy (e.g. v0.1.0)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  staging:
+    name: deploy (staging)
+    if: vars.DEPLOY_ENABLED == 'true'
+    runs-on: [self-hosted, windows, iamasc-staging]
+    environment:
+      name: staging
+      url: ${{ vars.STAGING_URL }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: tools
+      - name: Download and verify release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.event.release.tag_name }}
+        run: |
+          $dir = Join-Path $env:RUNNER_TEMP 'release'
+          gh release download $env:TAG --repo $env:GITHUB_REPOSITORY --pattern 'IAMasC-*.zip*' --dir $dir --clobber
+          $zip = Get-ChildItem $dir -Filter 'IAMasC-*.zip' | Select-Object -First 1
+          gh attestation verify $zip.FullName --repo $env:GITHUB_REPOSITORY
+          if ($LASTEXITCODE -ne 0) { throw 'Provenance attestation did not verify.' }
+          "ZIP=$($zip.FullName)" >> $env:GITHUB_ENV
+      - name: Deploy
+        shell: pwsh
+        env:
+          INSTALL_ROOT: ${{ vars.INSTALL_ROOT }}
+          SERVICE_NAME: ${{ vars.SERVICE_NAME }}
+          HEALTH_URL: ${{ vars.STAGING_URL }}
+        run: ./tools/Deploy-IAMasC.ps1 -ZipPath $env:ZIP -InstallRoot $env:INSTALL_ROOT -ServiceName $env:SERVICE_NAME -HealthUrl "$env:HEALTH_URL/health"
+
+  production:
+    name: deploy (production)
+    needs: staging
+    runs-on: [self-hosted, windows, iamasc-production]
+    environment:
+      name: production # required reviewers configured on this environment
+      url: ${{ vars.PRODUCTION_URL }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: tools
+      - name: Download and verify release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.event.release.tag_name }}
+        run: |
+          $dir = Join-Path $env:RUNNER_TEMP 'release'
+          gh release download $env:TAG --repo $env:GITHUB_REPOSITORY --pattern 'IAMasC-*.zip*' --dir $dir --clobber
+          $zip = Get-ChildItem $dir -Filter 'IAMasC-*.zip' | Select-Object -First 1
+          gh attestation verify $zip.FullName --repo $env:GITHUB_REPOSITORY
+          if ($LASTEXITCODE -ne 0) { throw 'Provenance attestation did not verify.' }
+          "ZIP=$($zip.FullName)" >> $env:GITHUB_ENV
+      - name: Deploy
+        shell: pwsh
+        env:
+          INSTALL_ROOT: ${{ vars.INSTALL_ROOT }}
+          SERVICE_NAME: ${{ vars.SERVICE_NAME }}
+          HEALTH_URL: ${{ vars.PRODUCTION_URL }}
+        run: ./tools/Deploy-IAMasC.ps1 -ZipPath $env:ZIP -InstallRoot $env:INSTALL_ROOT -ServiceName $env:SERVICE_NAME -HealthUrl "$env:HEALTH_URL/health"

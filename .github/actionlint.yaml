@@ -1,0 +1,12 @@
+self-hosted-runner:
+  # Labels on the self-hosted runners that live on the deploy targets (see docs/repository-settings.md).
+  labels:
+    - iamasc-staging
+    - iamasc-production
+
+paths:
+  .github/workflows/release.yml:
+    ignore:
+      # actionlint doesn't know GitHub's July 2026 self-repository syntax ($/...) yet.
+      # zizmor's self-repository audit requires it. Drop this once actionlint supports it.
+      - 'reusable workflow call "\$/\.github/workflows/'

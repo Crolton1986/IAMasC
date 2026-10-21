@@ -1,0 +1,211 @@
+name: security
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 6 * * 1' # Mondays 06:17 UTC, catches new CVEs in unchanged code
+  workflow_call:
+    secrets:
+      ANTHROPIC_API_KEY:
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  GITLEAKS_VERSION: 8.30.1
+  GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+  TRIVY_VERSION: 0.76.1
+  TRIVY_SHA256: c7cbe3137fb8a48a17574bede3dd6beb16742d1e9772929940fc90082c39d9c0
+  ACTIONLINT_VERSION: 1.7.12
+  ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+  ZIZMOR_VERSION: 1.31.1
+
+jobs:
+  secrets-scan:
+    name: secrets-scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # scan full history, not just the tip
+          persist-credentials: false
+      - name: Install gitleaks (checksum verified)
+        run: |
+          curl -sSLf -o gitleaks.tgz "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  gitleaks.tgz" | sha256sum -c -
+          tar -xzf gitleaks.tgz gitleaks && sudo mv gitleaks /usr/local/bin/
+      - name: gitleaks
+        run: |
+          mkdir -p out
+          gitleaks git . --redact --no-banner --exit-code 1 --report-format sarif --report-path out/gitleaks.sarif
+      - name: Upload SARIF
+        if: always() && hashFiles('out/gitleaks.sarif') != ''
+        uses: github/codeql-action/upload-sarif@48870fdd6b42ee6474ec4207209ff87609271a5e # v4.39.0
+        with:
+          sarif_file: out/gitleaks.sarif
+          category: gitleaks
+
+  vuln-scan:
+    name: vuln-scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install trivy (checksum verified)
+        run: |
+          curl -sSLf -o trivy.tgz "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
+          echo "${TRIVY_SHA256}  trivy.tgz" | sha256sum -c -
+          tar -xzf trivy.tgz trivy && sudo mv trivy /usr/local/bin/
+      - name: trivy fs (vulnerabilities, misconfiguration, secrets)
+        run: |
+          mkdir -p out
+          trivy fs --scanners vuln,misconfig,secret --severity HIGH,CRITICAL --exit-code 1 \
+            --format sarif --output out/trivy.sarif .
+      - name: Upload SARIF
+        if: always() && hashFiles('out/trivy.sarif') != ''
+        uses: github/codeql-action/upload-sarif@48870fdd6b42ee6474ec4207209ff87609271a5e # v4.39.0
+        with:
+          sarif_file: out/trivy.sarif
+          category: trivy
+      - name: Audit pinned PowerShell modules
+        if: always()
+        shell: pwsh
+        run: ./tools/Test-ModuleRequirements.ps1
+
+  sast:
+    name: sast
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # CodeQL has no PowerShell extractor. PowerShell is covered by PSScriptAnalyzer +
+      # InjectionHunter (lint job) and the AI security review below.
+      # Add 'javascript-typescript' here once the app ships front-end code.
+      - name: CodeQL init
+        uses: github/codeql-action/init@48870fdd6b42ee6474ec4207209ff87609271a5e # v4.39.0
+        with:
+          languages: actions
+          queries: security-extended
+      - name: CodeQL analyze
+        uses: github/codeql-action/analyze@48870fdd6b42ee6474ec4207209ff87609271a5e # v4.39.0
+        with:
+          category: codeql
+
+  workflow-audit:
+    name: workflow-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install actionlint (checksum verified)
+        run: |
+          curl -sSLf -o actionlint.tgz "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          echo "${ACTIONLINT_SHA256}  actionlint.tgz" | sha256sum -c -
+          tar -xzf actionlint.tgz actionlint && sudo mv actionlint /usr/local/bin/
+      - name: actionlint
+        run: actionlint -color
+      - name: Install zizmor
+        run: pipx install "zizmor==${ZIZMOR_VERSION}"
+      - name: zizmor
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p out
+          zizmor --format sarif .github/workflows > out/zizmor.sarif || status=$?
+          zizmor --format plain .github/workflows || true
+          exit "${status:-0}"
+      - name: Upload SARIF
+        if: always() && hashFiles('out/zizmor.sarif') != ''
+        uses: github/codeql-action/upload-sarif@48870fdd6b42ee6474ec4207209ff87609271a5e # v4.39.0
+        with:
+          sarif_file: out/zizmor.sarif
+          category: zizmor
+
+  dependency-review:
+    name: dependency-review
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Dependency review
+        if: github.event_name == 'pull_request'
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: moderate
+          deny-licenses: AGPL-3.0-only, AGPL-3.0-or-later, GPL-3.0-only, GPL-3.0-or-later, SSPL-1.0
+      - name: Not a pull request
+        if: github.event_name != 'pull_request'
+        run: echo "Dependency review only compares PR diffs. Nothing to do for ${GITHUB_EVENT_NAME}."
+
+  security-review:
+    name: security-review
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      # The reviewer isn't hardened against prompt injection, so it only runs on PRs from
+      # branches in this repo. Fork PRs need a maintainer to review and re-push the branch.
+      - name: Decide whether to run
+        id: gate
+        env:
+          HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+          IS_PR: ${{ github.event_name == 'pull_request' }}
+          SAME_REPO: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+        run: |
+          if [ "$IS_PR" != "true" ]; then
+            echo "Security review runs on pull requests only."; echo "run=false" >> "$GITHUB_OUTPUT"
+          elif [ "$SAME_REPO" != "true" ]; then
+            echo "::warning::Fork PR: AI security review skipped. A maintainer must review the diff manually."; echo "run=false" >> "$GITHUB_OUTPUT"
+          elif [ "$HAS_KEY" != "true" ]; then
+            echo "::warning::ANTHROPIC_API_KEY secret not set: AI security review skipped. See SECURITY.md."; echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.gate.outputs.run == 'true'
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Claude Code security review
+        id: review
+        if: steps.gate.outputs.run == 'true'
+        uses: anthropics/claude-code-security-review@0c6a49f1fa56a1d472575da86a94dbc1edb78eda # main @ 2026-10-21
+        with:
+          comment-pr: true
+          claude-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+          exclude-directories: docs/mockups/vendor
+      - name: Fail on findings
+        if: steps.gate.outputs.run == 'true' && steps.review.outputs.findings-count != '0'
+        env:
+          FINDINGS: ${{ steps.review.outputs.findings-count }}
+        run: |
+          echo "::error::Security review reported ${FINDINGS} finding(s). Fix them or reply on the PR comment explaining why each is a false positive, then re-run."
+          exit 1
