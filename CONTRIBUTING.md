@@ -46,7 +46,7 @@ Findings from the SARIF-producing tools also appear under the repo's **Security 
 
 ## Rules that the tests enforce
 
-- Every GitHub Action is pinned to a full commit SHA with the version in a comment.
+- Every GitHub Action is pinned to a full commit SHA with the version in a comment. Use the commit the tag points to, not the tag object: `git ls-remote https://github.com/OWNER/REPO "refs/tags/vX.Y.Z^{}"` (zizmor flags the difference).
 - Every workflow declares `permissions:` and jobs ask only for what they use.
 - No `pull_request_target`.
 - Every PowerShell module in `requirements.psd1` is pinned to an exact version.

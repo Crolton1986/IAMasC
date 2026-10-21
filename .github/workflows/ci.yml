@@ -33,7 +33,7 @@ jobs:
         run: ./build.ps1 -Task Lint
       - name: Upload SARIF to code scanning
         if: always() && hashFiles('out/psscriptanalyzer.sarif') != ''
-        uses: github/codeql-action/upload-sarif@48870fdd6b42ee6474ec4207209ff87609271a5e # v4.39.0
+        uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
         with:
           sarif_file: out/psscriptanalyzer.sarif
           category: psscriptanalyzer
@@ -78,7 +78,7 @@ jobs:
         with:
           persist-credentials: false
       - name: markdownlint
-        uses: DavidAnson/markdownlint-cli2-action@4580e1612f6407034edd6c0e4e316d725920867b # v24.2.0
+        uses: DavidAnson/markdownlint-cli2-action@21c1be1b93ad9ed58fa840aacc3f279cde2a72ff # v24.2.0
         with:
           globs: '**/*.md'
       - name: Check local links

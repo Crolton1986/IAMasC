@@ -51,7 +51,7 @@ jobs:
           gitleaks git . --redact --no-banner --exit-code 1 --report-format sarif --report-path out/gitleaks.sarif
       - name: Upload SARIF
         if: always() && hashFiles('out/gitleaks.sarif') != ''
-        uses: github/codeql-action/upload-sarif@48870fdd6b42ee6474ec4207209ff87609271a5e # v4.39.0
+        uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
         with:
           sarif_file: out/gitleaks.sarif
           category: gitleaks
@@ -79,7 +79,7 @@ jobs:
             --format sarif --output out/trivy.sarif .
       - name: Upload SARIF
         if: always() && hashFiles('out/trivy.sarif') != ''
-        uses: github/codeql-action/upload-sarif@48870fdd6b42ee6474ec4207209ff87609271a5e # v4.39.0
+        uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
         with:
           sarif_file: out/trivy.sarif
           category: trivy
@@ -103,12 +103,12 @@ jobs:
       # InjectionHunter (lint job) and the AI security review below.
       # Add 'javascript-typescript' here once the app ships front-end code.
       - name: CodeQL init
-        uses: github/codeql-action/init@48870fdd6b42ee6474ec4207209ff87609271a5e # v4.39.0
+        uses: github/codeql-action/init@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
         with:
           languages: actions
           queries: security-extended
       - name: CodeQL analyze
-        uses: github/codeql-action/analyze@48870fdd6b42ee6474ec4207209ff87609271a5e # v4.39.0
+        uses: github/codeql-action/analyze@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
         with:
           category: codeql
 
@@ -142,7 +142,7 @@ jobs:
           exit "${status:-0}"
       - name: Upload SARIF
         if: always() && hashFiles('out/zizmor.sarif') != ''
-        uses: github/codeql-action/upload-sarif@48870fdd6b42ee6474ec4207209ff87609271a5e # v4.39.0
+        uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
         with:
           sarif_file: out/zizmor.sarif
           category: zizmor
