@@ -37,6 +37,19 @@ Describe 'Open-IamStore' {
         Close-IamStore $s
     }
 
+    It 'releases the database file when closed' {
+        $path = Join-Path $TestDrive 'release.db'
+        $s = Open-IamStore -Path $path
+        $null = Write-IamAudit -Store $s -Actor 'x' -Action 'store.opened'
+        Close-IamStore $s
+        if ($IsLinux) {
+            @((& ls -l "/proc/$PID/fd") -match 'release\.db').Count | Should -Be 0
+        }
+        # On Windows an open handle makes these fail.
+        { Get-ChildItem -Path "$path*" | Remove-Item -Force } | Should -Not -Throw
+        Test-Path $path | Should -BeFalse
+    }
+
     It 'opens an in-memory database' {
         $s = Open-IamStore -Path ':memory:'
         $s.MigrationsApplied | Should -Be 1
@@ -148,7 +161,7 @@ Describe 'Migrations' {
             $null = New-Item -ItemType Directory -Path $Folder
             Set-Content -Path (Join-Path $Folder '0001_first.sql') -Value 'CREATE TABLE t (a TEXT);'
             Initialize-IamSqlite
-            $c = [Microsoft.Data.Sqlite.SqliteConnection]::new("Data Source=$Db"); $c.Open()
+            $c = [Microsoft.Data.Sqlite.SqliteConnection]::new("Data Source=$Db;Pooling=False"); $c.Open()
             Invoke-IamMigration -Connection $c -Folder $Folder | Should -Be 1
             Set-Content -Path (Join-Path $Folder '0001_first.sql') -Value 'CREATE TABLE t (a TEXT, b TEXT);'
             { Invoke-IamMigration -Connection $c -Folder $Folder } | Should -Throw '*has changed since it was applied*'
@@ -161,7 +174,7 @@ Describe 'Migrations' {
             $null = New-Item -ItemType Directory -Path $Folder
             [IO.File]::WriteAllText((Join-Path $Folder '0001_first.sql'), "CREATE TABLE t (a TEXT);`nCREATE TABLE u (b TEXT);`n")
             Initialize-IamSqlite
-            $c = [Microsoft.Data.Sqlite.SqliteConnection]::new("Data Source=$Db"); $c.Open()
+            $c = [Microsoft.Data.Sqlite.SqliteConnection]::new("Data Source=$Db;Pooling=False"); $c.Open()
             Invoke-IamMigration -Connection $c -Folder $Folder | Should -Be 1
             [IO.File]::WriteAllText((Join-Path $Folder '0001_first.sql'), "CREATE TABLE t (a TEXT);`r`nCREATE TABLE u (b TEXT);`r`n")
             Invoke-IamMigration -Connection $c -Folder $Folder | Should -Be 0
@@ -183,7 +196,7 @@ Describe 'Migrations' {
             Set-Content -Path (Join-Path $Folder '0001_good.sql') -Value 'CREATE TABLE ok (a TEXT);'
             Set-Content -Path (Join-Path $Folder '0002_bad.sql') -Value 'CREATE TABLE half (a TEXT); THIS IS NOT SQL;'
             Initialize-IamSqlite
-            $c = [Microsoft.Data.Sqlite.SqliteConnection]::new("Data Source=$Db"); $c.Open()
+            $c = [Microsoft.Data.Sqlite.SqliteConnection]::new("Data Source=$Db;Pooling=False"); $c.Open()
             { Invoke-IamMigration -Connection $c -Folder $Folder } | Should -Throw '*Migration 2 (bad) failed*'
             Invoke-IamSqlCommand -Connection $c -Sql "SELECT count(*) FROM sqlite_master WHERE name = 'half'" -Mode Scalar | Should -Be 0
             Invoke-IamSqlCommand -Connection $c -Sql 'SELECT count(*) FROM schema_migrations' -Mode Scalar | Should -Be 1
