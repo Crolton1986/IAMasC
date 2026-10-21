@@ -1,0 +1,16 @@
+apiVersion: iamasc.dev/v1
+kind: Lifecycle
+metadata:
+  name: default
+spec:
+  preProvisionDays: 3
+  states:
+    Pending: { account: disabled, grants: apply }
+    Active: { account: enabled, grants: apply }
+    Offboarding: { account: disabled, grants: revoke, snapshot: true }
+    Terminated: { account: disabled, grants: none }   # deletion follows retention in iamasc.yaml
+  overrides:
+    - match: { terminationType: Involuntary }
+      states:
+        Offboarding: { account: disabled, grants: revoke, snapshot: true, effective: immediate }
+  autoApply: [joiner, mover, leaver]

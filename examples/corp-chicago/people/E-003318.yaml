@@ -1,0 +1,22 @@
+apiVersion: iamasc.dev/v1
+kind: Person
+metadata:
+  name: E-003318
+spec:
+  hr:
+    source: adp
+    syncedAt: 2026-10-02T09:00:00Z
+    firstName: Dan
+    lastName: Whitfield
+    department: Sales
+    title: Account Executive
+    manager: E-002577
+    location: Chicago
+    companyCode: "100"
+    workerType: Employee
+    startDate: 2021-05-17
+    terminationDate: 2026-10-23T17:00:00-05:00   # future-dated; applies on schedule
+    terminationType: Voluntary
+    ticket: HR-7714
+  roles: []
+  exceptions: []

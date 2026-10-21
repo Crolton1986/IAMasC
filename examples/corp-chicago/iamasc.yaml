@@ -1,0 +1,48 @@
+apiVersion: iamasc.dev/v1
+kind: Workspace
+metadata:
+  name: corp-chicago
+  description: Chicago office and corporate functions (HR company code 100).
+spec:
+  requiredProviders:
+    activedirectory: { source: iamasc/activedirectory, version: "~> 1.0" }
+    salesforce: { source: iamasc/salesforce, version: "~> 0.3" }
+    netsuite: { source: iamasc/netsuite, version: "~> 0.1" }
+    workday: { source: iamasc/workday, version: "~> 0.2" }
+  dataSources:
+    hr:
+      source: iamasc/adp
+      version: "~> 1.0"
+      config:
+        clientId: { secret: adp-client-id }
+        certificate: { secret: adp-mtls-cert }
+  providers:
+    activedirectory:
+      domain: corp.example.com
+      server: dc01.corp.example.com
+      credential: { secret: ad-svc-iamasc-chicago }
+      scope:                            # this workspace may only touch these
+        ous: ["OU=Chicago,OU=Users,DC=corp,DC=example,DC=com", "OU=Disabled Users,DC=corp,DC=example,DC=com"]
+        groupPrefixes: [GG-, CHI-]
+    salesforce:
+      instanceUrl: https://corp.my.salesforce.com
+      credential: { secret: sf-iamasc }
+  naming:
+    activedirectory:
+      username: "{{ first | initial | lower }}{{ last | lower | ascii }}"
+      collision: append-number          # or: fail, use-middle-initial
+      upn: "{{ preferredFirst | default: first | lower }}.{{ last | lower }}@corp.example.com"
+      displayName: "{{ preferredFirst | default: first }} {{ last }}"
+  retention:
+    default: never                      # accounts stay disabled unless overridden
+    overrides:
+      salesforce: 30d                   # free the license sooner
+  backend:
+    sqlite: { path: data/corp-chicago.db }
+  settings:
+    dryRun: true
+    planEvery: 15m
+    git:
+      hrChanges: commit                 # person files from HR events
+      approvedRequests: commit          # roles and exceptions after approval
+      configChanges: pullRequest        # policies, modules, approvals edited in the UI

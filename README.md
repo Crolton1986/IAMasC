@@ -1,10 +1,10 @@
 # IAMasC
 
-Identity and access lifecycle tracking, from hire to offboard.
+Identity and access management as code.
 
-IAMasC records every person the business hires, every account and permission they get in each application, and every change until they leave. It takes hire and termination data from HR (manual entry, CSV, ADP), provisions and deprovisions accounts through per-application connectors, and keeps an audit trail of who got what, when, and why.
+Declare in YAML who should have what access, and IAMasC keeps every application in line with it, from the day HR records a hire to the day the last account is deleted. It works like Terraform: HR data and policies produce a desired state, IAMasC diffs it against what each application really has, shows a plan, and applies it through providers. Providers and reusable modules come from a registry, and a web UI sits on top for HR, IT, and auditors.
 
-Built on PowerShell 7 and [Pode](https://github.com/Badgerati/Pode). Active Directory is the first connector.
+Built on PowerShell 7 and [Pode](https://github.com/Badgerati/Pode). Active Directory is the first provider. See [docs/concept.md](docs/concept.md) and the sample configuration in [examples/corp-chicago](examples/corp-chicago).
 
 ## Status
 

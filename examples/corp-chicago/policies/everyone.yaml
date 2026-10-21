@@ -1,0 +1,10 @@
+apiVersion: iamasc.dev/v1
+kind: Policy
+metadata:
+  name: everyone
+spec:
+  match: {}
+  grants:
+    activedirectory:
+      account: { ou: "OU=Chicago,OU=Users,DC=corp,DC=example,DC=com" }
+      group: [GG-AllStaff]

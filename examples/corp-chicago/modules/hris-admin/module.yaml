@@ -1,0 +1,15 @@
+apiVersion: iamasc.dev/v1
+kind: Module
+metadata:
+  name: hris-admin
+  namespace: corp
+  version: 1.0.0
+  description: Administer employee records in Workday. Requested per person, never baseline.
+spec:
+  owner: E-000731
+  grants:
+    workday:
+      role:
+        - { name: HRIS Admin, organization: Corporate }
+    activedirectory:
+      group: [GG-Workday-Admins]

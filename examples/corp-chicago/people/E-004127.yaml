@@ -1,0 +1,36 @@
+apiVersion: iamasc.dev/v1
+kind: Person
+metadata:
+  name: E-004127
+spec:
+  hr:
+    source: adp
+    syncedAt: 2026-10-21T09:00:00Z
+    firstName: Maria
+    lastName: Okafor
+    department: Treasury                # changed from Finance, effective 2026-11-02
+    departmentEffective: 2026-11-02
+    title: Senior Analyst
+    manager: E-001104
+    location: Chicago
+    companyCode: "100"
+    costCenter: "4410"
+    workerType: Employee
+    startDate: 2024-03-04
+    terminationDate: null
+  roles: []
+  exceptions:
+    - name: netsuite-approver
+      reason: Quarter-end approvals
+      ticket: CHG-20931
+      privileged: true
+      expires: 2026-12-31
+      grants:
+        netsuite:
+          role:
+            - { name: Approver, subsidiary: US }
+      requestedBy: E-001104
+      approvals:
+        - { step: manager, by: E-001104, at: 2025-01-08T15:02:00Z }
+        - { step: owner, by: E-002210, at: 2025-01-08T16:45:00Z }
+        - { step: privileged, by: E-000412, at: 2025-01-09T09:10:00Z }

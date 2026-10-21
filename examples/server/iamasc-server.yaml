@@ -1,0 +1,31 @@
+# Server-wide settings. Lives on the IAMasC server, not in any workspace repo.
+apiVersion: iamasc.dev/v1
+kind: Server
+metadata:
+  name: corp
+spec:
+  workspaces:
+    - name: corp-chicago
+      repo: https://github.com/corp/iam-chicago.git
+      branch: main
+      match: { companyCode: "100" }
+      admins: { group: IAMasC-Chicago-Admins }
+    - name: corp-warehouse
+      repo: https://github.com/corp/iam-warehouse.git
+      branch: main
+      match: { companyCode: "200" }
+      admins: { group: IAMasC-Warehouse-Admins }
+  sharedModules:
+    - namespace: corp
+      repo: https://github.com/corp/iam-modules.git
+      branch: main
+  unmatched: hold
+  git:
+    auth: { githubApp: { appId: 123456, privateKey: { secret: iamasc-github-app } } }
+    signCommits: true
+    author: { name: IAMasC, email: iamasc@corp.example.com }
+  registry:
+    - name: public
+      index: https://github.com/iamasc/registry.git
+    - name: corp-private
+      index: https://github.com/corp/iam-registry.git
