@@ -13,9 +13,9 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.12" Sha512="53a6b55c6c36e2df4cdfd20d8c0ef28e770b90697f52b24128814a0daa9d8c1dc9214607e878d40cda245eb7d55f65d54b45940cf1a3994fda3a15b713ada6f5" />
-    <PackageReference Include="SQLitePCLRaw.core" Version="2.1.13" Sha512="0cd8e19fb092ed60e7067adc211fba88a2d66602233318ffd579cf335dc8b9d146935223ab8d409bd7c14e26b22aeff37c80524ad6eebafc807ab67c8d43f175" />
-    <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="2.1.13" Sha512="c3d74c078d2045e30bccec5f083baf8d48544ee488f78e374361f1ae9f125bfbc81a1eaa3fc4e390e4d9f69e7d987e74369cd033b177861a7c300076a72f4da3" />
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.13" Sha512="b1e7faaaedc7b8a76e5ce83bdcb3afaaa68cd7c589f781d5c0285618c96c8055bfe16ef6b6aa4c86c3cf7559100a5d581c3af17ee6237f266914c6450a105d8a" />
-    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.13" Sha512="daf6cf72b2f4d33d41c4029897db8600f8435dd04f03e7fc74d34569159b8e58db997efe57ea6634b32d3def254e245d23393ae82b849bea1bd3a8e89651123d" />
+    <PackageReference Include="SQLitePCLRaw.core" Version="3.0.5" Sha512="0cd8e19fb092ed60e7067adc211fba88a2d66602233318ffd579cf335dc8b9d146935223ab8d409bd7c14e26b22aeff37c80524ad6eebafc807ab67c8d43f175" />
+    <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="3.0.5" Sha512="c3d74c078d2045e30bccec5f083baf8d48544ee488f78e374361f1ae9f125bfbc81a1eaa3fc4e390e4d9f69e7d987e74369cd033b177861a7c300076a72f4da3" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" Sha512="b1e7faaaedc7b8a76e5ce83bdcb3afaaa68cd7c589f781d5c0285618c96c8055bfe16ef6b6aa4c86c3cf7559100a5d581c3af17ee6237f266914c6450a105d8a" />
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" Sha512="daf6cf72b2f4d33d41c4029897db8600f8435dd04f03e7fc74d34569159b8e58db997efe57ea6634b32d3def254e245d23393ae82b849bea1bd3a8e89651123d" />
   </ItemGroup>
 </Project>
