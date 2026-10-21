@@ -34,3 +34,6 @@ testResults.xml
 *.swp
 .DS_Store
 Thumbs.db
+
+# Restored .NET assemblies (tools/Restore-NuGetPackage.ps1)
+lib/

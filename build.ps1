@@ -50,6 +50,9 @@ function Invoke-Bootstrap {
         Install-Module -Name $module.Name -RequiredVersion $module.Version `
             -Repository PSGallery -Scope CurrentUser -Force -AllowClobber
     }
+
+    Write-Step 'Restoring .NET packages into lib/'
+    & (Join-Path $PSScriptRoot 'tools/Restore-NuGetPackage.ps1')
 }
 
 function Invoke-Lint {
@@ -146,7 +149,7 @@ function Invoke-Package {
     $null = New-Item -ItemType Directory -Path $staging -Force
 
     # Ship only what runs in production. Tests, docs, and CI config stay out.
-    $include = @('server.ps1', 'iamasc.ps1', 'src', 'routes', 'views', 'public', 'config', 'requirements.psd1', 'README.md', 'CHANGELOG.md')
+    $include = @('server.ps1', 'iamasc.ps1', 'src', 'lib', 'routes', 'views', 'public', 'config', 'requirements.psd1', 'README.md', 'CHANGELOG.md')
     foreach ($item in $include) {
         $path = Join-Path $PSScriptRoot $item
         if (Test-Path $path) { Copy-Item $path -Destination $staging -Recurse }
