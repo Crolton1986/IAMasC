@@ -185,12 +185,11 @@ Describe 'Migrations' {
             Initialize-IamSqlite
             $c = [Microsoft.Data.Sqlite.SqliteConnection]::new("Data Source=$Db"); $c.Open()
             { Invoke-IamMigration -Connection $c -Folder $Folder } | Should -Throw '*Migration 2 (bad) failed*'
-            $cmd = $c.CreateCommand()
-            $cmd.CommandText = "SELECT count(*) FROM sqlite_master WHERE name = 'half'"
-            $cmd.ExecuteScalar() | Should -Be 0
-            $cmd.CommandText = 'SELECT count(*) FROM schema_migrations'
-            $cmd.ExecuteScalar() | Should -Be 1
+            Invoke-IamSqlCommand -Connection $c -Sql "SELECT count(*) FROM sqlite_master WHERE name = 'half'" -Mode Scalar | Should -Be 0
+            Invoke-IamSqlCommand -Connection $c -Sql 'SELECT count(*) FROM schema_migrations' -Mode Scalar | Should -Be 1
             $c.Dispose()
+            # The file must be released, or Windows can't delete or move it.
+            { Remove-Item -LiteralPath $Db -Force } | Should -Not -Throw
         }
     }
 

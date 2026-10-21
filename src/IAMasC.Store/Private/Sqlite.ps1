@@ -78,3 +78,32 @@ function Add-IamSqlParameter {
         $null = $Command.Parameters.AddWithValue($name, $value)
     }
 }
+
+function Invoke-IamSqlCommand {
+    <#
+    .SYNOPSIS
+        Runs one statement and always disposes the command.
+    .DESCRIPTION
+        SQLite only closes the database file once every statement is finalized. A command left
+        undisposed (for example after an exception) keeps the file open, which on Windows blocks
+        deleting or moving it.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] $Connection,
+        [Parameter(Mandatory)] [string] $Sql,
+        [Collections.IDictionary] $Parameters,
+        $Transaction,
+        [ValidateSet('NonQuery', 'Scalar')] [string] $Mode = 'NonQuery'
+    )
+
+    $cmd = $Connection.CreateCommand()
+    try {
+        if ($Transaction) { $cmd.Transaction = $Transaction }
+        $cmd.CommandText = $Sql
+        Add-IamSqlParameter -Command $cmd -Parameters $Parameters
+        if ($Mode -eq 'Scalar') { $cmd.ExecuteScalar() } else { $cmd.ExecuteNonQuery() }
+    } finally {
+        $cmd.Dispose()
+    }
+}

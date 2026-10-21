@@ -35,18 +35,20 @@ function Invoke-IamMigration {
         [Parameter(Mandatory)] [string] $Folder
     )
 
-    $create = $Connection.CreateCommand()
-    $create.CommandText = 'CREATE TABLE IF NOT EXISTS schema_migrations (id INTEGER PRIMARY KEY, name TEXT NOT NULL, checksum TEXT NOT NULL, applied_at TEXT NOT NULL)'
-    $null = $create.ExecuteNonQuery()
+    $null = Invoke-IamSqlCommand -Connection $Connection -Sql 'CREATE TABLE IF NOT EXISTS schema_migrations (id INTEGER PRIMARY KEY, name TEXT NOT NULL, checksum TEXT NOT NULL, applied_at TEXT NOT NULL)'
 
     $applied = @{}
     $read = $Connection.CreateCommand()
-    $read.CommandText = 'SELECT id, name, checksum FROM schema_migrations'
-    $reader = $read.ExecuteReader()
     try {
-        while ($reader.Read()) { $applied[[int]$reader.GetInt64(0)] = @{ Name = $reader.GetString(1); Checksum = $reader.GetString(2) } }
+        $read.CommandText = 'SELECT id, name, checksum FROM schema_migrations'
+        $reader = $read.ExecuteReader()
+        try {
+            while ($reader.Read()) { $applied[[int]$reader.GetInt64(0)] = @{ Name = $reader.GetString(1); Checksum = $reader.GetString(2) } }
+        } finally {
+            $reader.Dispose()
+        }
     } finally {
-        $reader.Dispose()
+        $read.Dispose()
     }
 
     $migrations = @(Get-IamMigration -Folder $Folder)
@@ -67,16 +69,10 @@ function Invoke-IamMigration {
 
         $tx = $Connection.BeginTransaction()
         try {
-            $cmd = $Connection.CreateCommand()
-            $cmd.Transaction = $tx
-            $cmd.CommandText = $m.Sql
-            $null = $cmd.ExecuteNonQuery()
-
-            $record = $Connection.CreateCommand()
-            $record.Transaction = $tx
-            $record.CommandText = 'INSERT INTO schema_migrations (id, name, checksum, applied_at) VALUES (@id, @name, @checksum, @at)'
-            Add-IamSqlParameter -Command $record -Parameters @{ id = $m.Id; name = $m.Name; checksum = $m.Checksum; at = [datetime]::UtcNow }
-            $null = $record.ExecuteNonQuery()
+            $null = Invoke-IamSqlCommand -Connection $Connection -Transaction $tx -Sql $m.Sql
+            $null = Invoke-IamSqlCommand -Connection $Connection -Transaction $tx `
+                -Sql 'INSERT INTO schema_migrations (id, name, checksum, applied_at) VALUES (@id, @name, @checksum, @at)' `
+                -Parameters @{ id = $m.Id; name = $m.Name; checksum = $m.Checksum; at = [datetime]::UtcNow }
             $tx.Commit()
             $count++
         } catch {

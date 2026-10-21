@@ -27,13 +27,10 @@ function Open-IamStore {
     $connection.Open()
 
     try {
-        $pragma = $connection.CreateCommand()
-        $pragma.CommandText = 'PRAGMA busy_timeout = 5000; PRAGMA foreign_keys = ON;'
-        $null = $pragma.ExecuteNonQuery()
+        $null = Invoke-IamSqlCommand -Connection $connection -Sql 'PRAGMA busy_timeout = 5000; PRAGMA foreign_keys = ON;'
         if ($Path -ne ':memory:') {
             # WAL lets the web pages read while the scheduler writes.
-            $pragma.CommandText = 'PRAGMA journal_mode = WAL;'
-            $null = $pragma.ExecuteNonQuery()
+            $null = Invoke-IamSqlCommand -Connection $connection -Sql 'PRAGMA journal_mode = WAL;' -Mode Scalar
         }
         $applied = Invoke-IamMigration -Connection $connection -Folder (Join-Path $PSScriptRoot '..' 'migrations')
     } catch {
@@ -74,11 +71,12 @@ function Invoke-IamQuery {
     )
 
     $cmd = $Store.Connection.CreateCommand()
-    $cmd.Transaction = Get-IamActiveTransaction -Connection $Store.Connection
-    $cmd.CommandText = $Sql
-    Add-IamSqlParameter -Command $cmd -Parameters $Parameters
-    $reader = $cmd.ExecuteReader()
+    $reader = $null
     try {
+        $cmd.Transaction = Get-IamActiveTransaction -Connection $Store.Connection
+        $cmd.CommandText = $Sql
+        Add-IamSqlParameter -Command $cmd -Parameters $Parameters
+        $reader = $cmd.ExecuteReader()
         while ($reader.Read()) {
             $row = [ordered]@{}
             for ($i = 0; $i -lt $reader.FieldCount; $i++) {
@@ -87,7 +85,7 @@ function Invoke-IamQuery {
             [pscustomobject]$row
         }
     } finally {
-        $reader.Dispose()
+        if ($reader) { $reader.Dispose() }
         $cmd.Dispose()
     }
 }
@@ -102,15 +100,7 @@ function Invoke-IamNonQuery {
         [Collections.IDictionary] $Parameters
     )
 
-    $cmd = $Store.Connection.CreateCommand()
-    $cmd.Transaction = Get-IamActiveTransaction -Connection $Store.Connection
-    $cmd.CommandText = $Sql
-    Add-IamSqlParameter -Command $cmd -Parameters $Parameters
-    try {
-        $cmd.ExecuteNonQuery()
-    } finally {
-        $cmd.Dispose()
-    }
+    Invoke-IamSqlCommand -Connection $Store.Connection -Sql $Sql -Parameters $Parameters -Transaction (Get-IamActiveTransaction -Connection $Store.Connection)
 }
 
 function Invoke-IamTransaction {
