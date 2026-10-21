@@ -8,11 +8,9 @@ spec:
     Pending: { account: disabled, grants: apply }
     Active: { account: enabled, grants: apply }
     Offboarding: { account: disabled, grants: revoke, snapshot: true }
-    Terminated: { account: absent, after: 90d }
+    Terminated: { account: disabled, grants: none }   # deletion follows retention in iamasc.yaml
   overrides:
     - match: { terminationType: Involuntary }
       states:
         Offboarding: { account: disabled, grants: revoke, snapshot: true, effective: immediate }
-  approvals:
-    autoApply: [joiner, leaver, mover]
-    requireApproval: [exception, privileged, policyChange]
+  autoApply: [joiner, mover, leaver]

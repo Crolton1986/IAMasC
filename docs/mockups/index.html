@@ -239,12 +239,14 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
 <div class="app">
   <aside class="rail">
     <div class="brand">IAMasC <small>v0 mockup</small></div>
+    <div class="field"><label for="ws">Workspace</label><select id="ws"><option>corp-chicago</option><option>corp-warehouse</option><option>corp-retail</option><option>All workspaces</option></select></div>
     <nav aria-label="Screens">
       <div class="group">Overview</div>
       <a href="#dashboard">Dashboard</a>
       <a href="#people">People <span class="count">412</span></a>
       <a href="#person">Person detail</a>
-      <a href="#plans">Plans <span class="count">2 to approve</span></a>
+      <a href="#approvals">Approvals <span class="count">2</span></a>
+      <a href="#plans">Plans</a>
       <div class="group">HR events</div>
       <a href="#hire">New hire</a>
       <a href="#terminate">Offboard</a>
@@ -252,9 +254,10 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
       <div class="group">Configuration</div>
       <a href="#policies">Policies &amp; modules</a>
       <a href="#providers">Providers</a>
+      <a href="#workspaces">Workspaces</a>
       <a href="#signin">Sign-in page</a>
     </nav>
-    <div class="me">Signed in as <strong>jlee</strong><br>Role: ITOperator<br><span class="mono">config @ 8f3c21a</span></div>
+    <div class="me">Signed in as <strong>jlee</strong><br>Role: ITOperator<br><span class="mono">corp-chicago @ 8f3c21a</span></div>
   </aside>
 
   <main>
@@ -268,7 +271,7 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
       <div class="head">
         <div>
           <h1 id="h-dashboard">Dashboard</h1>
-          <p>Desired access comes from HR plus the policies in git. This is how far reality is from it. Wednesday, October 21, 2026.</p>
+          <p>Desired access comes from person files and policies in the corp-chicago repo. This is how far reality is from it. Wednesday, October 21, 2026.</p>
         </div>
         <div class="actions">
           <a class="btn" href="#import">Import from HR</a>
@@ -278,7 +281,7 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
 
       <div class="stats">
         <div class="stat info"><b>19</b><span>Changes in the current plan</span></div>
-        <div class="stat warn"><b>2</b><span>Changes waiting for approval</span></div>
+        <div class="stat warn"><b>2</b><span>Requests waiting for approval</span></div>
         <div class="stat bad"><b>1</b><span>Failed change</span></div>
         <div class="stat warn"><b>5</b><span>Drift: live differs from state</span></div>
       </div>
@@ -293,8 +296,8 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
                 <tr><td>Grace Lindqvist<span class="sub">HR Generalist · starts Nov 2</span></td><td>Joiner (ADP)</td><td class="nowrap"><span class="pill ok">+5</span></td><td><span class="pill">Auto-apply Oct 30 06:00</span></td></tr>
                 <tr><td><a href="#person">Maria Okafor</a><span class="sub">Finance → Treasury · Nov 2</span></td><td>Mover (ADP)</td><td class="nowrap"><span class="pill ok">+1</span> <span class="pill warn">~1</span> <span class="pill bad">−1</span></td><td><span class="pill">Auto-apply Nov 2 06:00</span></td></tr>
                 <tr><td><a href="#terminate">Dan Whitfield</a><span class="sub">Sales · leaves Oct 23 17:00</span></td><td>Leaver (ADP)</td><td class="nowrap"><span class="pill warn">~2</span> <span class="pill bad">−8</span></td><td><span class="pill">Auto-apply Oct 23 17:00</span></td></tr>
-                <tr><td>Aiko Tanaka<span class="sub">Engineering Manager</span></td><td>Grant <span class="mono">eng-prod-readonly</span></td><td class="nowrap"><span class="pill ok">+1</span></td><td><span class="pill warn">Needs approval</span></td></tr>
-                <tr><td>Finance (41 people)</td><td>Policy change <span class="mono">finance</span> v1.2.0 → v1.3.0</td><td class="nowrap"><span class="pill ok">+41</span></td><td><span class="pill warn">Needs approval</span></td></tr>
+                <tr><td>Aiko Tanaka<span class="sub">Engineering Manager</span></td><td>Exception (privileged)</td><td class="nowrap"><span class="pill ok">+1</span></td><td><a class="pill warn" href="#approvals">Waiting: security</a></td></tr>
+                <tr><td>Finance (41 people)</td><td>Policy change <span class="mono">finance</span> v1.2.0 → v1.3.0</td><td class="nowrap"><span class="pill ok">+41</span></td><td><span class="pill warn">PR #231 in review</span></td></tr>
               </tbody>
             </table>
           </div>
@@ -305,12 +308,16 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
           <div class="body">
             <div class="callout bad">
               <strong>activedirectory: create account failed for Priya Raman</strong>
-              <span>The username <code>praman</code> belongs to a disabled account that isn't in state. Import it with <code>iamasc import</code> or set a username in <code>identities/E-004602.yaml</code>.</span>
+              <span>The username <code>praman</code> belongs to a disabled account that isn't in state. Import it with <code>iamasc import</code> or set a username in <code>people/E-004602.yaml</code>.</span>
               <span><a href="#plans">Open the run</a></span>
             </div>
             <div class="callout warn">
               <strong>5 accounts drifted since the last apply</strong>
               <span>Groups added outside IAMasC, found by the 09:15 refresh. The next plan removes them unless they're adopted into YAML.</span>
+            </div>
+            <div class="callout warn">
+              <strong>2 new hires match no workspace</strong>
+              <span>ADP company code 300 isn't mapped. <a href="#workspaces">Assign them</a> or add a workspace.</span>
             </div>
             <div class="callout info">
               <strong>1 provider upgrade available</strong>
@@ -369,14 +376,14 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
           </div>
         </div>
         <div class="actions">
-          <button class="btn" type="button">Add exception</button>
+          <a class="btn" href="#approvals">Request access</a>
           <a class="btn danger" href="#terminate">Offboard</a>
         </div>
       </div>
 
       <div class="tabs" role="tablist" aria-label="Person views">
         <button role="tab" aria-selected="true" aria-controls="p-access" id="t-access">Access</button>
-        <button role="tab" aria-selected="false" aria-controls="p-code" id="t-code">Desired state (YAML)</button>
+        <button role="tab" aria-selected="false" aria-controls="p-code" id="t-code">Person file</button>
         <button role="tab" aria-selected="false" aria-controls="p-history" id="t-history">History</button>
       </div>
 
@@ -436,7 +443,7 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
             <table>
               <thead><tr><th>Role</th><th>Scope</th><th>Required by</th><th>Expires</th><th>State</th></tr></thead>
               <tbody>
-                <tr><td>Approver</td><td class="mono">subsidiary: US</td><td><a class="src" href="#policies">identities/E-004127.yaml</a><span class="sub">CHG-20931 · approved by E-001104 · privileged</span></td><td class="num nowrap">Dec 31, 2026</td><td><span class="pill ok">In sync</span></td></tr>
+                <tr><td>Approver</td><td class="mono">subsidiary: US</td><td><a class="src" href="#policies">people/E-004127.yaml</a> exception<span class="sub">CHG-20931 · approved by E-001104 · privileged</span></td><td class="num nowrap">Dec 31, 2026</td><td><span class="pill ok">In sync</span></td></tr>
                 <tr><td>Finance Viewer</td><td class="mono">subsidiary: US</td><td><a class="src" href="#policies">corp/finance-analyst@1.2.0</a></td><td class="muted">—</td><td><span class="pill ok">In sync</span></td></tr>
               </tbody>
             </table>
@@ -446,41 +453,166 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
 
       <div class="stack" id="p-code" role="tabpanel" aria-labelledby="t-code" hidden>
         <div class="panel">
-          <header><h2>Computed desired state</h2><span class="muted">From ADP attributes + policies + grants at config 8f3c21a. Read only; change the source files instead.</span></header>
+          <header><h2 class="mono" style="font-family:var(--font-data);font-size:.85rem">people/E-004127.yaml</h2><span class="muted">corp-chicago @ 8f3c21a</span></header>
           <div class="body">
-<pre class="yaml"><span class="k">identity:</span> E-004127
-<span class="k">attributes:</span>                      <span class="c"># from iamasc/adp</span>
-  <span class="k">department:</span> Finance
-  <span class="k">title:</span> Senior Analyst
-  <span class="k">location:</span> Chicago
-  <span class="k">status:</span> Active
-<span class="k">sources:</span> [policies/everyone.yaml, policies/chicago.yaml, policies/finance.yaml, identities/E-004127.yaml]
-<span class="k">activedirectory:</span>
-  <span class="k">account:</span> { <span class="k">state:</span> enabled, <span class="k">ou:</span> "OU=Finance,OU=Users,DC=corp,DC=example,DC=com" }
-  <span class="k">group:</span> [GG-AllStaff, GG-Chicago, GG-Printers-CHI, GG-Finance-All, GG-SharePoint-Finance]
-<span class="k">salesforce:</span>
-  <span class="k">account:</span> { <span class="k">state:</span> active, <span class="k">license:</span> Salesforce }
-  <span class="k">profile:</span> Finance User
-  <span class="k">permissionSet:</span> [Reports_Viewer]
-<span class="k">netsuite:</span>
-  <span class="k">role:</span>
-    - { <span class="k">name:</span> Finance Viewer, <span class="k">subsidiary:</span> US }
-    - { <span class="k">name:</span> Approver, <span class="k">subsidiary:</span> US, <span class="k">expires:</span> 2026-12-31 }</pre>
+            <p class="muted">IAMasC owns the <span class="mono">hr</span> block and rewrites it from ADP. Roles and exceptions change only through approved requests. Baseline access from policies isn't listed here; the Access tab shows the full result.</p>
+<pre class="yaml"><span class="k">apiVersion:</span> iamasc.dev/v1
+<span class="k">kind:</span> Person
+<span class="k">metadata:</span>
+  <span class="k">name:</span> E-004127
+<span class="k">spec:</span>
+  <span class="k">hr:</span>                                  <span class="c"># from ADP, synced 09:00</span>
+    <span class="k">firstName:</span> Maria
+    <span class="k">lastName:</span> Okafor
+    <span class="k">department:</span> Treasury               <span class="c"># was Finance</span>
+    <span class="k">departmentEffective:</span> 2026-11-02
+    <span class="k">title:</span> Senior Analyst
+    <span class="k">manager:</span> E-001104
+    <span class="k">location:</span> Chicago
+    <span class="k">companyCode:</span> "100"
+    <span class="k">startDate:</span> 2024-03-04
+    <span class="k">terminationDate:</span> null
+  <span class="k">roles:</span> []
+  <span class="k">exceptions:</span>
+    - <span class="k">name:</span> netsuite-approver
+      <span class="k">ticket:</span> CHG-20931
+      <span class="k">privileged:</span> true
+      <span class="k">expires:</span> 2026-12-31
+      <span class="k">grants:</span>
+        <span class="k">netsuite:</span>
+          <span class="k">role:</span> [{ <span class="k">name:</span> Approver, <span class="k">subsidiary:</span> US }]
+      <span class="k">approvals:</span>
+        - { <span class="k">step:</span> manager,    <span class="k">by:</span> E-001104, <span class="k">at:</span> 2025-01-08T15:02 }
+        - { <span class="k">step:</span> owner,      <span class="k">by:</span> E-002210, <span class="k">at:</span> 2025-01-08T16:45 }
+        - { <span class="k">step:</span> privileged, <span class="k">by:</span> E-000412, <span class="k">at:</span> 2025-01-09T09:10 }</pre>
           </div>
         </div>
       </div>
 
       <div class="stack" id="p-history" role="tabpanel" aria-labelledby="t-history" hidden>
         <div class="panel">
+          <header><h2>Git history of this person</h2><span class="muted">people/E-004127.yaml</span></header>
           <div class="body">
             <ol class="timeline">
-              <li><span class="when">Nov 2, 2026 · planned</span><strong>Mover: Finance → Treasury</strong><span class="muted">3 changes across activedirectory and salesforce. Exception in identities/E-004127.yaml kept.</span></li>
-              <li><span class="when">Oct 19, 2026 09:15</span><strong>Drift found</strong><span class="muted">GG-VPN-Contractors present in AD, not in state.</span></li>
-              <li><span class="when">Jan 9, 2025</span><strong>Exception added: NetSuite Approver</strong><span class="muted">Commit 41be09c by jlee, PR #212 approved by rcastellano.</span></li>
-              <li><span class="when">Mar 4, 2024 08:00</span><strong>Apply: accounts enabled</strong><span class="muted">Run 0193, config 2a7d5e1.</span></li>
-              <li><span class="when">Mar 1, 2024 06:00</span><strong>Apply: 3 accounts created disabled, 7 grants</strong><span class="muted">Run 0187, config 2a7d5e1.</span></li>
-              <li><span class="when">Feb 12, 2024</span><strong>Joiner from ADP</strong><span class="muted">Start date Mar 4, 2024.</span></li>
+              <li><span class="when">Oct 21, 2026 · 8f3c21a · IAMasC</span><strong>HR: department Finance → Treasury, effective Nov 2</strong><span class="muted">Plan scheduled: 3 changes across activedirectory and salesforce.</span></li>
+              <li><span class="when">Oct 19, 2026 · refresh</span><strong>Drift found</strong><span class="muted">GG-VPN-Contractors present in AD, not in state.</span></li>
+              <li><span class="when">Jan 9, 2025 · 41be09c · IAMasC</span><strong>Exception approved: NetSuite Approver until Dec 31, 2026</strong><span class="muted">Manager, owner, and security approved. Requested by Ruth Castellano.</span></li>
+              <li><span class="when">Jul 1, 2025 · 77a0c3e · IAMasC</span><strong>HR: title Analyst → Senior Analyst</strong></li>
+              <li><span class="when">Mar 1, 2024 · run 0187</span><strong>Applied: 3 accounts created disabled, 7 grants</strong></li>
+              <li><span class="when">Feb 12, 2024 · 2a7d5e1 · IAMasC</span><strong>Joiner from ADP: file created</strong><span class="muted">Start date Mar 4, 2024.</span></li>
             </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Approvals -->
+    <section class="screen" id="approvals" aria-labelledby="h-approvals" hidden>
+      <div class="head">
+        <div>
+          <h1 id="h-approvals">Approvals</h1>
+          <p>Requests waiting on you, and the ones you've asked for. When every step of a chain approves, IAMasC commits the change to the person's file and the next plan applies it.</p>
+        </div>
+        <div class="actions"><button class="btn primary" type="button">Request access</button></div>
+      </div>
+      <div class="chips" role="group" aria-label="Filter requests">
+        <button class="chip" aria-pressed="true">Waiting on me 2</button>
+        <button class="chip" aria-pressed="false">I requested 1</button>
+        <button class="chip" aria-pressed="false">All open 3</button>
+        <button class="chip" aria-pressed="false">Closed</button>
+      </div>
+
+      <div class="panel">
+        <header>
+          <h2>Grace Lindqvist needs <span class="mono">corp/hris-admin</span></h2>
+          <div class="summary"><span class="pill accent">Role</span><span class="pill">Chain: application</span></div>
+        </header>
+        <div class="body">
+          <dl class="kv">
+            <dt>For</dt><dd>Grace Lindqvist, HR Generalist · <span class="mono">E-004611</span> · starts Nov 2</dd>
+            <dt>Requested by</dt><dd>Nadia Rahman (manager), Oct 21 10:12</dd>
+            <dt>Reason</dt><dd>Will own employee record changes for the Chicago office.</dd>
+            <dt>Grants</dt><dd><div class="groups"><code>workday.role HRIS Admin @ Corporate</code><code>activedirectory.group GG-Workday-Admins</code></div></dd>
+            <dt>From</dt><dd>Nov 2, 2026 · no end date</dd>
+          </dl>
+          <ol class="steps" aria-label="Approval chain">
+            <li class="done">1 Manager · Nadia Rahman ✓</li>
+            <li class="on">2 Owner · you (Elena Petrova)</li>
+          </ol>
+          <div class="field"><label for="a-note">Comment (saved with the approval)</label><input id="a-note" placeholder="Optional"></div>
+          <div class="approve">
+            <span class="muted">Approving commits to <span class="mono">people/E-004611.yaml</span> in corp-chicago.</span>
+            <div class="actions"><button class="btn" type="button">Deny</button><button class="btn primary" type="button">Approve</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <header>
+          <h2>Aiko Tanaka needs production read access</h2>
+          <div class="summary"><span class="pill bad">Privileged</span><span class="pill">Chain: privileged</span></div>
+        </header>
+        <div class="body">
+          <dl class="kv">
+            <dt>For</dt><dd>Aiko Tanaka, Engineering Manager · <span class="mono">E-001956</span></dd>
+            <dt>Requested by</dt><dd>Aiko Tanaka (self), Oct 20 16:40</dd>
+            <dt>Reason</dt><dd>Incident review INC-5521 needs read access to production logs.</dd>
+            <dt>Grants</dt><dd><div class="groups"><code>activedirectory.group GG-Prod-ReadOnly</code></div></dd>
+            <dt>Expires</dt><dd>Nov 3, 2026 (exceptions must expire)</dd>
+          </dl>
+          <ol class="steps" aria-label="Approval chain">
+            <li class="done">1 Manager · Lena Hoffmann ✓</li>
+            <li class="done">2 Owner · Platform team ✓</li>
+            <li class="on">3 IAMasC-Security · 1 of 1 needed</li>
+          </ol>
+          <div class="approve">
+            <span class="muted">Waiting 18 hours. Reminder sent at 16:40 by Teams and email.</span>
+            <div class="actions"><button class="btn" type="button">Deny</button><button class="btn primary" type="button">Approve</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Workspaces -->
+    <section class="screen" id="workspaces" aria-labelledby="h-workspaces" hidden>
+      <div class="head">
+        <div>
+          <h1 id="h-workspaces">Workspaces</h1>
+          <p>Each site or line of business has its own config repo, people, policies, approval chains, and admins. HR fields decide which workspace a person belongs to.</p>
+        </div>
+        <div class="actions"><button class="btn primary" type="button">Add workspace</button></div>
+      </div>
+      <div class="panel">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Workspace</th><th>Repo</th><th>HR match</th><th>People</th><th>Shares</th><th>Last commit</th></tr></thead>
+            <tbody>
+              <tr><td><strong>corp-chicago</strong><span class="sub">Admins: IAMasC-Chicago-Admins</span></td><td class="mono">corp/iam-chicago@main</td><td class="mono">companyCode = 100</td><td class="num">203</td><td><div class="groups"><code>activedirectory: OU=Chicago</code></div></td><td class="num nowrap"><span class="mono">8f3c21a</span><span class="sub">09:02 · IAMasC: joiner E-004611</span></td></tr>
+              <tr><td><strong>corp-warehouse</strong><span class="sub">Admins: IAMasC-Warehouse-Admins</span></td><td class="mono">corp/iam-warehouse@main</td><td class="mono">companyCode = 200</td><td class="num">187</td><td><div class="groups"><code>activedirectory: OU=Reno</code></div></td><td class="num nowrap"><span class="mono">b71d0e9</span><span class="sub">Yesterday · leaver E-002740</span></td></tr>
+              <tr><td><strong>corp-retail</strong><span class="sub">Admins: IAMasC-Retail-Admins</span></td><td class="mono">corp/iam-retail@main</td><td class="mono">businessUnit = Retail</td><td class="num">22</td><td><div class="groups"><code>activedirectory: OU=Stores</code></div></td><td class="num nowrap"><span class="mono">0c44a12</span><span class="sub">Oct 18 · policy change</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="grid-even">
+        <div class="panel">
+          <header><h2>Shared modules</h2></header>
+          <div class="body">
+            <dl class="kv">
+              <dt>Namespace</dt><dd class="mono">corp/</dd>
+              <dt>Repo</dt><dd class="mono">corp/iam-modules@main</dd>
+              <dt>Modules</dt><dd>14, used by all 3 workspaces</dd>
+            </dl>
+          </div>
+        </div>
+        <div class="panel">
+          <header><h2>No workspace matched</h2><span class="pill warn">2 waiting</span></header>
+          <div class="body">
+            <p class="muted">These HR records matched no workspace, so nothing was created for them.</p>
+            <div class="table-wrap"><table><tbody>
+              <tr><td>Rafael Souza<span class="sub mono">E-004620 · companyCode 300</span></td><td class="nowrap"><button class="btn small" type="button">Assign</button></td></tr>
+              <tr><td>Hana Kobayashi<span class="sub mono">E-004621 · companyCode 300</span></td><td class="nowrap"><button class="btn small" type="button">Assign</button></td></tr>
+            </tbody></table></div>
           </div>
         </div>
       </div>
@@ -491,7 +623,7 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
       <div class="head">
         <div>
           <h1 id="h-plans">Plans</h1>
-          <p>Every apply runs a saved plan exactly as shown. HR-driven changes apply on schedule; exceptions, privileged access, and policy changes wait for approval here.</p>
+          <p>Every apply runs a saved plan exactly as shown. HR-driven changes apply on schedule. Roles and exceptions appear here once their approvals are done; policy changes once their pull request merges.</p>
         </div>
         <div class="actions"><button class="btn" type="button">Plan now</button></div>
       </div>
@@ -499,10 +631,10 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
       <div class="panel">
         <header>
           <h2>Policy change: <span class="mono">finance</span> uses corp/finance-analyst 1.3.0</h2>
-          <div class="summary"><span class="pill ok">+41</span><span class="pill warn">Needs approval</span></div>
+          <div class="summary"><span class="pill ok">+41</span><span class="pill warn">Applies when PR #231 merges</span></div>
         </header>
         <div class="body">
-          <p class="muted">From pull request #231 by rcastellano, merged as commit 8f3c21a. Adds a Salesforce permission set for everyone in Finance.</p>
+          <p class="muted">Pull request #231 by rcastellano in corp/iam-chicago, opened from the Policies page. Adds a Salesforce permission set for everyone in Finance. This preview is posted on the PR too.</p>
 <pre class="diff"><span class="c"># policies/finance.yaml</span>
 <span class="del">-      version: "1.2.0"</span>
 <span class="add">+      version: "1.3.0"</span>
@@ -513,8 +645,8 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
 
 <span class="c">  Plan: 41 to add, 0 to change, 0 to remove.</span></pre>
           <div class="approve">
-            <span class="muted">Approvers: IAMasC-Admins. You can't approve a change you authored.</span>
-            <div class="actions"><button class="btn" type="button">Reject</button><button class="btn primary" type="button">Approve and apply</button></div>
+            <span class="muted">Policy changes are reviewed as pull requests by the repo's code owners.</span>
+            <div class="actions"><button class="btn" type="button">Open PR #231</button></div>
           </div>
         </div>
       </div>
@@ -523,7 +655,7 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
         <header><h2>Scheduled: HR changes</h2><div class="summary"><span class="pill ok">+6</span><span class="pill warn">~3</span><span class="pill bad">−9</span></div></header>
         <div class="body">
 <pre class="diff"><span class="k">  # E-004611 Grace Lindqvist · joiner · applies Oct 30 06:00</span>
-<span class="add">  + activedirectory.account   glindqvist   disabled, OU=HR,OU=Users</span>
+<span class="add">  + activedirectory.account   glindqvist   disabled, OU=HR,OU=Chicago,OU=Users</span>
 <span class="add">  + activedirectory.group     GG-AllStaff, GG-Chicago, GG-HR-All, GG-Workday-Readers</span>
 
 <span class="k">  # E-004127 Maria Okafor · mover Finance → Treasury · applies Nov 2 06:00</span>
@@ -559,7 +691,7 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
       <div class="head">
         <div>
           <h1 id="h-hire">New hire</h1>
-          <p>For people HR hasn't entered in ADP yet, or contractors who never go through HR. This records an HR event. Access still comes from policies, so you'll see the plan it produces.</p>
+          <p>For people HR hasn't entered in ADP yet, or contractors who never go through HR. It creates the person's file in git; baseline access comes from policies, and any extra roles go for approval.</p>
         </div>
       </div>
       <div class="grid2">
@@ -580,6 +712,11 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
                 <div class="field"><label for="h-type">Worker type</label><select id="h-type"><option>Employee</option><option>Contractor</option><option>Intern</option></select></div>
                 <div class="field"><label for="h-start">Start date</label><input id="h-start" type="date" value="2026-11-02"></div>
               </fieldset>
+              <fieldset>
+                <legend>Roles to request</legend>
+                <div class="field wide"><label for="h-role">Beyond baseline access. Each goes through its approval chain.</label>
+                  <select id="h-role"><option>corp/hris-admin · Workday HRIS Admin · manager + owner</option><option>corp/payroll-viewer · manager</option><option>None</option></select></div>
+              </fieldset>
             </div>
           </div>
         </form>
@@ -590,13 +727,14 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
             <p class="muted">Matched policies: <a class="src" href="#policies">everyone</a> <a class="src" href="#policies">chicago-office</a> <a class="src" href="#policies">human-resources</a></p>
 <pre class="diff"><span class="add">+ activedirectory.account  glindqvist</span>
 <span class="c">    upn  grace.lindqvist@corp.example.com</span>
-<span class="c">    ou   OU=HR,OU=Users,DC=corp,DC=example,DC=com</span>
+<span class="c">    ou   OU=HR,OU=Chicago,OU=Users,DC=corp,DC=example,DC=com</span>
 <span class="c">    state disabled until Nov 2 07:00</span>
 <span class="add">+ activedirectory.group    GG-AllStaff</span>
 <span class="add">+ activedirectory.group    GG-Chicago</span>
 <span class="add">+ activedirectory.group    GG-HR-All</span>
 <span class="add">+ activedirectory.group    GG-Workday-Readers</span></pre>
-            <p class="muted">Joiners auto-apply 3 days before the start date (lifecycle.yaml).</p>
+            <p class="muted">Baseline access auto-applies 3 days before the start date. <span class="mono">corp/hris-admin</span> waits for Nadia Rahman and the module owner, then applies.</p>
+            <div class="callout info"><span>Creates <span class="mono">people/E-004611.yaml</span> in <strong>corp-chicago</strong> (companyCode 100) and commits it.</span></div>
             <div class="actions"><button class="btn" type="button">Save as draft</button><button class="btn primary" type="button">Record hire</button></div>
           </div>
         </div>
@@ -616,10 +754,10 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
           <header><h2>Details</h2></header>
           <div class="body">
             <div class="form">
-              <div class="field"><label for="t-type">Type</label><select id="t-type"><option>Voluntary (scheduled)</option><option>Involuntary (immediate)</option></select><span class="hint">Involuntary applies the moment you confirm (lifecycle.yaml override).</span></div>
+              <div class="field"><label for="t-type">Type</label><select id="t-type"><option>Voluntary (scheduled)</option><option>Involuntary (immediate)</option></select><span class="hint">Voluntary dates can be weeks ahead; the termination is written to the person file now and applies on time. Involuntary applies the moment you confirm.</span></div>
               <div class="field"><label for="t-when">Last day and time</label><input id="t-when" type="datetime-local" value="2026-10-23T17:00"></div>
               <div class="field"><label for="t-ticket">Ticket</label><input id="t-ticket" class="mono" value="HR-7714"></div>
-              <div class="field"><label for="t-retain">Delete accounts after</label><select id="t-retain"><option>90 days (Jan 21, 2027)</option><option>Never (legal hold)</option></select></div>
+              <div class="field"><label for="t-retain">Delete accounts after</label><select id="t-retain"><option>Workspace default (never)</option><option>Legal hold</option></select></div>
             </div>
           </div>
         </form>
@@ -627,7 +765,7 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
         <div class="panel">
           <header><h2>Plan preview</h2></header>
           <div class="body">
-            <p class="muted">Every provider with an account for this person is included. Current access is snapshotted before anything is removed.</p>
+            <p class="muted">Every provider he has an account in is included. Current access is snapshotted before anything is removed.</p>
 <pre class="diff"><span class="k"># activedirectory</span>
 <span class="chg">~ account  dwhitfield  enabled → disabled</span>
 <span class="chg">           move to OU=Disabled Users, description "Left 2026-10-23, HR-7714"</span>
@@ -635,11 +773,13 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
 <span class="k"># salesforce</span>
 <span class="chg">~ account  active → frozen, release 1 Salesforce license</span>
 <span class="del">- permissionSet  Sales_Cloud_User, Quote_Approver</span>
-<span class="k"># later, Jan 21 2027</span>
-<span class="del">- activedirectory.account, salesforce.account</span></pre>
+<span class="k"># Nov 22, 2026 (salesforce retention 30d)</span>
+<span class="del">- salesforce.account</span>
+<span class="c"># activedirectory account stays disabled (retention: never)</span></pre>
             <div class="callout warn"><span>Dan manages 2 people. Their manager attribute will point to <strong>Kofi Mensah</strong> until HR assigns someone.</span></div>
             <div class="field"><label for="t-confirm">Type <strong>E-003318</strong> to confirm</label><input id="t-confirm" class="mono" autocomplete="off"></div>
             <div class="actions"><a class="btn" href="#people">Cancel</a><button class="btn danger" id="t-go" type="button" disabled>Record termination</button></div>
+            <p class="muted">Commits the termination to <span class="mono">people/E-003318.yaml</span>.</p>
           </div>
         </div>
       </div>
@@ -686,7 +826,7 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
       <div class="head">
         <div>
           <h1 id="h-policies">Policies &amp; modules</h1>
-          <p>Read from the config repo at commit <span class="mono">8f3c21a</span>. Edits here open a pull request, so they get the same review as any other change.</p>
+          <p>Baseline access, read from corp-chicago at <span class="mono">8f3c21a</span>. Roles are modules people request; approval chains are in <span class="mono">approvals.yaml</span>. Edits here open a pull request.</p>
         </div>
         <div class="actions"><button class="btn primary" type="button">New policy</button></div>
       </div>

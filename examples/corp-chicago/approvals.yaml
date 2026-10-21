@@ -1,0 +1,29 @@
+apiVersion: iamasc.dev/v1
+kind: ApprovalPolicy
+metadata:
+  name: default
+spec:
+  chains:
+    standard:
+      steps:
+        - { approver: manager }
+    application:
+      steps:
+        - { approver: manager }
+        - { approver: owner }
+    privileged:
+      steps:
+        - { approver: manager }
+        - { approver: owner }
+        - { approver: { group: IAMasC-Security }, minimum: 1 }
+  rules:
+    - match: { privileged: true }
+      chain: privileged
+    - match: { kind: Role }
+      chain: application
+    - match: { kind: Exception }
+      chain: application
+  timeouts:
+    remindAfter: 2d
+    escalateAfter: 5d
+    expireAfter: 14d

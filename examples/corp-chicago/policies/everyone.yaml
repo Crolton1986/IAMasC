@@ -6,5 +6,5 @@ spec:
   match: {}
   grants:
     activedirectory:
-      account: { ou: "OU=Users,DC=corp,DC=example,DC=com" }
+      account: { ou: "OU=Chicago,OU=Users,DC=corp,DC=example,DC=com" }
       group: [GG-AllStaff]

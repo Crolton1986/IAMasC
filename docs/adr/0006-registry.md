@@ -1,11 +1,11 @@
 # 0006: Registry for providers and modules
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-10-21
 
 ## Context
 
-Providers and modules should be shareable across organizations, like the Terraform Registry. A provider runs with privileged credentials, so installing one is a supply-chain decision.
+Providers, modules, and notifiers should be shareable across organizations, like the Terraform Registry. A provider runs with privileged credentials, so installing one is a supply-chain decision.
 
 ## Decision
 

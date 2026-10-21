@@ -1,0 +1,29 @@
+# Created by IAMasC from ADP on 2026-10-21. The hr block is overwritten from HR; change roles and
+# exceptions through an approved request in the UI.
+apiVersion: iamasc.dev/v1
+kind: Person
+metadata:
+  name: E-004611
+spec:
+  hr:
+    source: adp
+    syncedAt: 2026-10-21T09:00:00Z
+    firstName: Grace
+    lastName: Lindqvist
+    department: Human Resources
+    title: HR Generalist
+    manager: E-001288
+    location: Chicago
+    companyCode: "100"
+    workerType: Employee
+    startDate: 2026-11-02
+    terminationDate: null
+  roles:
+    - module: corp/hris-admin
+      version: "~> 1.0"
+      from: 2026-11-02
+      requestedBy: E-001288
+      approvals:
+        - { step: manager, by: E-001288, at: 2026-10-21T10:12:00Z }
+        - { step: owner, by: E-000731, at: 2026-10-21T11:40:00Z }
+  exceptions: []

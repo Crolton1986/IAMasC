@@ -1,0 +1,23 @@
+apiVersion: iamasc.dev/v1
+kind: Notifications
+metadata:
+  name: default
+spec:
+  channels:
+    email: { notifier: iamasc/email, config: { via: graph, from: iam@corp.example.com } }
+    teams-direct: { notifier: iamasc/teams, config: { mode: chat } }
+    teams-it: { notifier: iamasc/teams, config: { mode: channel, webhook: { secret: teams-it-webhook } } }
+    slack-it: { notifier: iamasc/slack, config: { channel: "#iam-alerts", token: { secret: slack-bot } } }
+    servicenow: { notifier: iamasc/webhook, config: { url: https://corp.service-now.com/api/iam, auth: { secret: snow-token } } }
+  routes:
+    - event: approval.requested
+      to: [approver]
+      via: [email, teams-direct]
+    - event: [approval.approved, approval.denied]
+      to: [requester]
+      via: [email]
+    - event: [apply.failed, drift.found]
+      via: [teams-it, slack-it, servicenow]
+    - event: leaver.scheduled
+      to: [manager]
+      via: [email]

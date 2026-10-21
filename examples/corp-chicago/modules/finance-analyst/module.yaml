@@ -4,13 +4,14 @@ metadata:
   name: finance-analyst
   namespace: corp
   version: 1.2.0
-  description: Baseline access for Finance staff across AD and Salesforce.
+  description: Baseline access for Finance staff across AD, Salesforce, and NetSuite.
 spec:
+  owner: E-001104                       # approves requests that use the application chain
   inputs:
     costCenter: { type: string, required: true }
   grants:
     activedirectory:
-      account: { ou: "OU=Finance,OU=Users,DC=corp,DC=example,DC=com" }
+      account: { ou: "OU=Finance,OU=Chicago,OU=Users,DC=corp,DC=example,DC=com" }
       group: [GG-Finance-All, GG-SharePoint-Finance]
       attribute:
         department: Finance
@@ -19,3 +20,6 @@ spec:
       account: { license: Salesforce }
       profile: Finance User
       permissionSet: [Reports_Viewer]
+    netsuite:
+      role:
+        - { name: Finance Viewer, subsidiary: US }
