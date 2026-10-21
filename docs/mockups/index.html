@@ -609,7 +609,9 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
           <header><h2>No workspace matched</h2><span class="pill warn">2 waiting</span></header>
           <div class="body">
             <p class="muted">These HR records matched no workspace, so nothing was created for them.</p>
-            <div class="table-wrap"><table><tbody>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Person</th><th>Action</th></tr></thead>
+              <tbody>
               <tr><td>Rafael Souza<span class="sub mono">E-004620 · companyCode 300</span></td><td class="nowrap"><button class="btn small" type="button">Assign</button></td></tr>
               <tr><td>Hana Kobayashi<span class="sub mono">E-004621 · companyCode 300</span></td><td class="nowrap"><button class="btn small" type="button">Assign</button></td></tr>
             </tbody></table></div>
