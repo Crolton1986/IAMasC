@@ -8,7 +8,7 @@ Built on PowerShell 7 and [Pode](https://github.com/Badgerati/Pode). Active Dire
 
 ## Status
 
-Stage 0: repo foundation, CI/CD, concept, and mockups. No application code yet.
+Slice 1 in progress: the config engine and `iamasc validate` are in. Next: the data store and the web shell. See [docs/architecture.md](docs/architecture.md).
 
 ## How work gets shipped
 
@@ -17,6 +17,16 @@ Every change goes through a feature branch and a pull request into `main`. A PR 
 - [CONTRIBUTING.md](CONTRIBUTING.md): branch naming, commits, the full list of gates
 - [SECURITY.md](SECURITY.md): reporting vulnerabilities, verifying releases
 - [docs/repository-settings.md](docs/repository-settings.md): GitHub settings and the `main` ruleset
+
+## Validate a workspace
+
+```powershell
+./build.ps1 -Task Bootstrap                          # once: installs pinned modules, including powershell-yaml
+./iamasc.ps1 validate ./examples/corp-chicago        # a workspace folder
+./iamasc.ps1 validate ./examples/server/iamasc-server.yaml -Format json
+```
+
+`validate` checks every file against the schema for its kind (`src/IAMasC.Config/schemas`), then checks that the files agree: providers are declared, modules resolve and match their version constraints, approval rules and notification routes point at things that exist, person files are named after the person, and no secret is written in plain text. It exits 1 on any error, or on warnings too with `-Strict`, so a workspace repo can run it in its own CI.
 
 ## Running the checks locally
 

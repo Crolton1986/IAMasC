@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iamasc.dev/schemas/v1/policy.schema.json",
+  "title": "IAMasC policy",
+  "type": "object",
+  "required": [
+    "apiVersion",
+    "kind",
+    "metadata",
+    "spec"
+  ],
+  "properties": {
+    "apiVersion": {
+      "const": "iamasc.dev/v1"
+    },
+    "kind": {
+      "const": "Policy"
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "namespace": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "spec": {
+      "type": "object",
+      "properties": {
+        "match": {
+          "type": "object",
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "grants": {
+          "type": "object",
+          "description": "Grants per provider. Provider schemas validate the inside in a later release.",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "use": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "module": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]*/[a-z0-9][a-z0-9-]*$"
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^(~>|>=|=)?\\s*\\d+(\\.\\d+){0,2}$"
+              },
+              "with": {
+                "type": "object"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "module",
+              "version"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "match"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "grants"
+          ]
+        },
+        {
+          "required": [
+            "use"
+          ]
+        }
+      ]
+    }
+  },
+  "additionalProperties": false
+}

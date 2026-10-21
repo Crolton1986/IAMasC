@@ -1,0 +1,240 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iamasc.dev/schemas/v1/workspace.schema.json",
+  "title": "IAMasC workspace",
+  "type": "object",
+  "required": [
+    "apiVersion",
+    "kind",
+    "metadata",
+    "spec"
+  ],
+  "properties": {
+    "apiVersion": {
+      "const": "iamasc.dev/v1"
+    },
+    "kind": {
+      "const": "Workspace"
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "namespace": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "spec": {
+      "type": "object",
+      "properties": {
+        "requiredProviders": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]*/[a-z0-9][a-z0-9-]*$"
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^(~>|>=|=)?\\s*\\d+(\\.\\d+){0,2}$"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "source",
+              "version"
+            ]
+          }
+        },
+        "dataSources": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]*/[a-z0-9][a-z0-9-]*$"
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^(~>|>=|=)?\\s*\\d+(\\.\\d+){0,2}$"
+              },
+              "config": {
+                "type": "object"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "source",
+              "version"
+            ]
+          }
+        },
+        "providers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "naming": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "username": {
+                "type": "string"
+              },
+              "collision": {
+                "enum": [
+                  "append-number",
+                  "use-middle-initial",
+                  "fail"
+                ]
+              },
+              "upn": {
+                "type": "string"
+              },
+              "displayName": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "retention": {
+          "type": "object",
+          "properties": {
+            "default": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[0-9]+[smhd]$"
+                },
+                {
+                  "const": "never"
+                }
+              ]
+            },
+            "overrides": {
+              "type": "object",
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9]+[smhd]$"
+                  },
+                  {
+                    "const": "never"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "backend": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 1,
+          "properties": {
+            "sqlite": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "path"
+              ]
+            },
+            "sqlserver": {
+              "type": "object",
+              "properties": {
+                "connectionString": {
+                  "type": "object",
+                  "required": [
+                    "secret"
+                  ],
+                  "properties": {
+                    "secret": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "settings": {
+          "type": "object",
+          "properties": {
+            "dryRun": {
+              "type": "boolean"
+            },
+            "planEvery": {
+              "type": "string",
+              "pattern": "^[0-9]+[smhd]$"
+            },
+            "git": {
+              "type": "object",
+              "properties": {
+                "hrChanges": {
+                  "enum": [
+                    "commit",
+                    "pullRequest"
+                  ]
+                },
+                "approvedRequests": {
+                  "enum": [
+                    "commit",
+                    "pullRequest"
+                  ]
+                },
+                "configChanges": {
+                  "enum": [
+                    "commit",
+                    "pullRequest"
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "requiredProviders"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

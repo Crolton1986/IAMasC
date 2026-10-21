@@ -16,7 +16,7 @@ BeforeAll {
 
 Describe 'Repository layout' {
     It '<_> exists' -ForEach @(
-        'README.md', 'LICENSE', 'CONTRIBUTING.md', 'SECURITY.md', 'CHANGELOG.md', 'build.ps1',
+        'README.md', 'LICENSE', 'CONTRIBUTING.md', 'SECURITY.md', 'CHANGELOG.md', 'build.ps1', 'iamasc.ps1',
         'requirements.psd1', 'PSScriptAnalyzerSettings.psd1',
         '.github/CODEOWNERS', '.github/pull_request_template.md',
         '.github/workflows/ci.yml', '.github/workflows/security.yml',

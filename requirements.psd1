@@ -5,5 +5,6 @@
         @{ Name = 'Pester';           Version = '5.6.1';  Purpose = 'Tests' }
         @{ Name = 'PSScriptAnalyzer'; Version = '1.25.0'; Purpose = 'Lint' }
         @{ Name = 'InjectionHunter';  Version = '1.0.0';  Purpose = 'Lint (code injection rules)' }
+        @{ Name = 'powershell-yaml';  Version = '0.4.12'; Purpose = 'YAML parsing (runtime)' }
     )
 }

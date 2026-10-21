@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iamasc.dev/schemas/v1/approvalpolicy.schema.json",
+  "title": "IAMasC approval policy",
+  "type": "object",
+  "required": [
+    "apiVersion",
+    "kind",
+    "metadata",
+    "spec"
+  ],
+  "properties": {
+    "apiVersion": {
+      "const": "iamasc.dev/v1"
+    },
+    "kind": {
+      "const": "ApprovalPolicy"
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "namespace": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "spec": {
+      "type": "object",
+      "properties": {
+        "chains": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "steps": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "approver": {
+                      "anyOf": [
+                        {
+                          "enum": [
+                            "manager",
+                            "owner"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "group": {
+                              "type": "string"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "group"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "person": {
+                              "type": "string"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "person"
+                          ]
+                        }
+                      ]
+                    },
+                    "minimum": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "approver"
+                  ]
+                }
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "steps"
+            ]
+          }
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "match": {
+                "type": "object",
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": [
+                        "string",
+                        "number",
+                        "boolean"
+                      ]
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": [
+                          "string",
+                          "number",
+                          "boolean"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              "chain": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "match",
+              "chain"
+            ]
+          }
+        },
+        "timeouts": {
+          "type": "object",
+          "properties": {
+            "remindAfter": {
+              "type": "string",
+              "pattern": "^[0-9]+[smhd]$"
+            },
+            "escalateAfter": {
+              "type": "string",
+              "pattern": "^[0-9]+[smhd]$"
+            },
+            "expireAfter": {
+              "type": "string",
+              "pattern": "^[0-9]+[smhd]$"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "chains"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

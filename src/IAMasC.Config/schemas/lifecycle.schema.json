@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iamasc.dev/schemas/v1/lifecycle.schema.json",
+  "title": "IAMasC lifecycle",
+  "type": "object",
+  "required": [
+    "apiVersion",
+    "kind",
+    "metadata",
+    "spec"
+  ],
+  "properties": {
+    "apiVersion": {
+      "const": "iamasc.dev/v1"
+    },
+    "kind": {
+      "const": "Lifecycle"
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "namespace": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "spec": {
+      "type": "object",
+      "properties": {
+        "preProvisionDays": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "states": {
+          "type": "object",
+          "propertyNames": {
+            "enum": [
+              "Pending",
+              "Active",
+              "Offboarding",
+              "Terminated"
+            ]
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "account": {
+                "enum": [
+                  "enabled",
+                  "disabled",
+                  "absent"
+                ]
+              },
+              "grants": {
+                "enum": [
+                  "apply",
+                  "revoke",
+                  "none"
+                ]
+              },
+              "snapshot": {
+                "type": "boolean"
+              },
+              "after": {
+                "type": "string",
+                "pattern": "^[0-9]+[smhd]$"
+              },
+              "effective": {
+                "enum": [
+                  "immediate",
+                  "scheduled"
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "account"
+            ]
+          }
+        },
+        "overrides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "match": {
+                "type": "object",
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": [
+                        "string",
+                        "number",
+                        "boolean"
+                      ]
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": [
+                          "string",
+                          "number",
+                          "boolean"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              "states": {
+                "type": "object",
+                "propertyNames": {
+                  "enum": [
+                    "Pending",
+                    "Active",
+                    "Offboarding",
+                    "Terminated"
+                  ]
+                },
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "account": {
+                      "enum": [
+                        "enabled",
+                        "disabled",
+                        "absent"
+                      ]
+                    },
+                    "grants": {
+                      "enum": [
+                        "apply",
+                        "revoke",
+                        "none"
+                      ]
+                    },
+                    "snapshot": {
+                      "type": "boolean"
+                    },
+                    "after": {
+                      "type": "string",
+                      "pattern": "^[0-9]+[smhd]$"
+                    },
+                    "effective": {
+                      "enum": [
+                        "immediate",
+                        "scheduled"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "account"
+                  ]
+                }
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "match",
+              "states"
+            ]
+          }
+        },
+        "autoApply": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "joiner",
+              "mover",
+              "leaver"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "states"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,256 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iamasc.dev/schemas/v1/person.schema.json",
+  "title": "IAMasC person",
+  "type": "object",
+  "required": [
+    "apiVersion",
+    "kind",
+    "metadata",
+    "spec"
+  ],
+  "properties": {
+    "apiVersion": {
+      "const": "iamasc.dev/v1"
+    },
+    "kind": {
+      "const": "Person"
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "namespace": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "spec": {
+      "type": "object",
+      "properties": {
+        "hr": {
+          "type": "object",
+          "required": [
+            "source",
+            "firstName",
+            "lastName",
+            "startDate"
+          ],
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "syncedAt": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}([T ][0-9:.]+(Z|[+-]\\d{2}:?\\d{2})?)?$"
+            },
+            "firstName": {
+              "type": "string",
+              "minLength": 1
+            },
+            "lastName": {
+              "type": "string",
+              "minLength": 1
+            },
+            "preferredFirstName": {
+              "type": "string"
+            },
+            "manager": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "startDate": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}([T ][0-9:.]+(Z|[+-]\\d{2}:?\\d{2})?)?$"
+            },
+            "terminationDate": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}([T ][0-9:.]+(Z|[+-]\\d{2}:?\\d{2})?)?$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "terminationType": {
+              "enum": [
+                "Voluntary",
+                "Involuntary"
+              ]
+            },
+            "workerType": {
+              "enum": [
+                "Employee",
+                "Contractor",
+                "Intern"
+              ]
+            }
+          },
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          }
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "module": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]*/[a-z0-9][a-z0-9-]*$"
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^(~>|>=|=)?\\s*\\d+(\\.\\d+){0,2}$"
+              },
+              "from": {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}([T ][0-9:.]+(Z|[+-]\\d{2}:?\\d{2})?)?$"
+              },
+              "until": {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}([T ][0-9:.]+(Z|[+-]\\d{2}:?\\d{2})?)?$"
+              },
+              "requestedBy": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              },
+              "approvals": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "step",
+                    "by",
+                    "at"
+                  ],
+                  "properties": {
+                    "step": {
+                      "type": "string"
+                    },
+                    "by": {
+                      "type": "string"
+                    },
+                    "at": {
+                      "type": "string",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}([T ][0-9:.]+(Z|[+-]\\d{2}:?\\d{2})?)?$"
+                    },
+                    "comment": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "module",
+              "version"
+            ]
+          }
+        },
+        "exceptions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              "reason": {
+                "type": "string"
+              },
+              "ticket": {
+                "type": "string"
+              },
+              "privileged": {
+                "type": "boolean"
+              },
+              "expires": {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}([T ][0-9:.]+(Z|[+-]\\d{2}:?\\d{2})?)?$"
+              },
+              "grants": {
+                "type": "object",
+                "description": "Grants per provider. Provider schemas validate the inside in a later release.",
+                "additionalProperties": {
+                  "type": "object"
+                }
+              },
+              "requestedBy": {
+                "type": "string"
+              },
+              "approvals": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "step",
+                    "by",
+                    "at"
+                  ],
+                  "properties": {
+                    "step": {
+                      "type": "string"
+                    },
+                    "by": {
+                      "type": "string"
+                    },
+                    "at": {
+                      "type": "string",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}([T ][0-9:.]+(Z|[+-]\\d{2}:?\\d{2})?)?$"
+                    },
+                    "comment": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "reason",
+              "expires",
+              "grants"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "hr"
+      ]
+    }
+  },
+  "additionalProperties": false
+}
