@@ -1,0 +1,36 @@
+# Local data
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+data/
+
+# Local config and secrets (commit *.example.psd1 only)
+config/settings.psd1
+config/*.local.psd1
+*.pfx
+*.p12
+*.pem
+*.key
+.env
+.env.*
+
+# Logs and build output
+logs/
+*.log
+out/
+dist/
+TestResults/
+coverage.xml
+testResults.xml
+
+# Editors and OS
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
