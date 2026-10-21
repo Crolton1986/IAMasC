@@ -6,7 +6,7 @@ All notable changes are recorded here. The format follows [Keep a Changelog](htt
 
 ### Added
 
-- Repository foundation: contribution process, PR and issue templates, CODEOWNERS.
+- Repository foundation: Apache-2.0 license, contribution process, PR and issue templates, CODEOWNERS.
 - CI quality gates: PSScriptAnalyzer with InjectionHunter, Pester on Ubuntu and Windows, markdown lint and link check.
 - Security gates: gitleaks, Trivy, CodeQL, actionlint, zizmor, dependency review, PowerShell module audit, AI security review.
 - Release pipeline with SBOM and build provenance attestation; deploy pipeline scaffold for Windows servers.

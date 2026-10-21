@@ -28,3 +28,7 @@ Requires PowerShell 7.4 or later.
 ```
 
 `SecurityScan` also runs `gitleaks` and `trivy` when they're on your PATH.
+
+## License
+
+[Apache License 2.0](LICENSE).
