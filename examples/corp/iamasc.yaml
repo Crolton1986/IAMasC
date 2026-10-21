@@ -1,0 +1,33 @@
+apiVersion: iamasc.dev/v1
+kind: Workspace
+metadata:
+  name: corp
+spec:
+  requiredProviders:
+    activedirectory: { source: iamasc/activedirectory, version: "~> 1.0" }
+    salesforce: { source: iamasc/salesforce, version: "~> 0.3" }
+    netsuite: { source: iamasc/netsuite, version: "~> 0.1" }
+  dataSources:
+    hr:
+      source: iamasc/adp
+      version: "~> 1.0"
+      config:
+        clientId: { secret: adp-client-id }
+        certificate: { secret: adp-mtls-cert }
+  providers:
+    activedirectory:
+      domain: corp.example.com
+      server: dc01.corp.example.com
+      credential: { secret: ad-svc-iamasc }
+      naming:
+        username: "{{ first | initial }}{{ last }}"
+        upn: "{{ preferredFirst | default: first }}.{{ last }}@corp.example.com"
+    salesforce:
+      instanceUrl: https://corp.my.salesforce.com
+      credential: { secret: sf-iamasc }
+  backend:
+    sqlite: { path: data/state.db }
+  settings:
+    dryRun: true
+    planEvery: 15m
+    uiChanges: pullRequest   # or: commit

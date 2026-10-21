@@ -1,0 +1,10 @@
+apiVersion: iamasc.dev/v1
+kind: Policy
+metadata:
+  name: chicago-office
+spec:
+  match:
+    location: Chicago
+  grants:
+    activedirectory:
+      group: [GG-Chicago, GG-Printers-CHI]

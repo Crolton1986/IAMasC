@@ -1,0 +1,21 @@
+# Written by `iamasc init`. Commit it. Change it only with `iamasc init -upgrade`.
+apiVersion: iamasc.dev/v1
+kind: Lock
+providers:
+  iamasc/activedirectory:
+    version: 1.0.0
+    sha256: "0000000000000000000000000000000000000000000000000000000000000000"
+  iamasc/salesforce:
+    version: 0.3.1
+    sha256: "0000000000000000000000000000000000000000000000000000000000000000"
+  iamasc/netsuite:
+    version: 0.1.4
+    sha256: "0000000000000000000000000000000000000000000000000000000000000000"
+dataSources:
+  iamasc/adp:
+    version: 1.0.2
+    sha256: "0000000000000000000000000000000000000000000000000000000000000000"
+modules:
+  corp/finance-analyst:
+    version: 1.2.0
+    source: ./modules/finance-analyst

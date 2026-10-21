@@ -1,0 +1,12 @@
+apiVersion: iamasc.dev/v1
+kind: Policy
+metadata:
+  name: finance
+spec:
+  match:
+    department: Finance
+  use:
+    - module: corp/finance-analyst
+      version: "1.2.0"
+      with:
+        costCenter: "{{ person.costCenter }}"

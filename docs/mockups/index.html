@@ -47,8 +47,8 @@
 }
 
 * { box-sizing: border-box; }
-[hidden] { display: none !important; }
 body { margin: 0; }
+[hidden] { display: none !important; }
 body { background: var(--bg); color: var(--fg); font: 14px/1.5 var(--font-ui); }
 a { color: var(--accent); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -201,6 +201,38 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
   .screen:not([hidden]) { animation: rise .18s ease-out; }
   @keyframes rise { from { transform: translateY(4px); opacity: .6; } to { transform: none; opacity: 1; } }
 }
+
+/* Plan diffs, YAML, and provider sections */
+.diff { font-family: var(--font-data); font-size: .8rem; line-height: 1.7; margin: 0; padding: 12px 16px; overflow-x: auto; background: var(--sunken); border-radius: var(--radius); white-space: pre; }
+.diff .c { color: var(--muted); }
+.diff .add { color: var(--ok); }
+.diff .chg { color: var(--warn); }
+.diff .del { color: var(--bad); }
+.diff .k { color: var(--accent); }
+.yaml { font-family: var(--font-data); font-size: .8rem; line-height: 1.6; margin: 0; padding: 12px 16px; overflow-x: auto; background: var(--sunken); border-radius: var(--radius); white-space: pre; }
+.yaml .k { color: var(--accent); }
+.yaml .s { color: var(--fg); }
+.yaml .c { color: var(--muted); }
+.src { font-family: var(--font-data); font-size: .72rem; color: var(--accent); text-decoration: none; white-space: nowrap; }
+.src:hover { text-decoration: underline; }
+.prov { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: baseline; }
+.prov h2 { display: flex; align-items: baseline; gap: 8px; }
+.prov .addr { font-family: var(--font-data); font-size: .72rem; color: var(--muted); font-weight: 400; }
+.shape { font-family: var(--font-data); font-size: .68rem; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; text-transform: none; letter-spacing: 0; }
+.sub-h { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; padding: 10px 16px 0; }
+.sub-h h3 { font-size: .85rem; }
+.single { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+.single strong { font-weight: 500; }
+.seats { display: flex; align-items: center; gap: 10px; font-size: .8rem; }
+.bar { width: 120px; height: 6px; background: var(--sunken); border-radius: 3px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); }
+.tabs button { font: inherit; font-size: .85rem; background: none; border: 0; border-bottom: 2px solid transparent; color: var(--muted); padding: 8px 12px; cursor: pointer; }
+.tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); font-weight: 500; }
+.stack { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.summary { display: flex; flex-wrap: wrap; gap: 6px; }
+.approve { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.reg { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
 </style>
 </head>
 <body>
@@ -212,23 +244,23 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
       <a href="#dashboard">Dashboard</a>
       <a href="#people">People <span class="count">412</span></a>
       <a href="#person">Person detail</a>
-      <div class="group">Lifecycle</div>
+      <a href="#plans">Plans <span class="count">2 to approve</span></a>
+      <div class="group">HR events</div>
       <a href="#hire">New hire</a>
       <a href="#terminate">Offboard</a>
       <a href="#import">Import from HR</a>
-      <a href="#jobs">Jobs <span class="count">2 failed</span></a>
       <div class="group">Configuration</div>
-      <a href="#apps">Applications</a>
-      <a href="#rules">Access rules</a>
+      <a href="#policies">Policies &amp; modules</a>
+      <a href="#providers">Providers</a>
       <a href="#signin">Sign-in page</a>
     </nav>
-    <div class="me">Signed in as <strong>jlee</strong><br>Role: ITOperator</div>
+    <div class="me">Signed in as <strong>jlee</strong><br>Role: ITOperator<br><span class="mono">config @ 8f3c21a</span></div>
   </aside>
 
   <main>
     <div class="mockbar">
       <span>Mockup for review. Every name, ID, and group below is sample data.</span>
-      <span class="dry">DRY RUN: no changes are written to Active Directory</span>
+      <span class="dry">DRY RUN: apply behaves like plan</span>
     </div>
 
     <!-- 1. Dashboard -->
@@ -236,34 +268,33 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
       <div class="head">
         <div>
           <h1 id="h-dashboard">Dashboard</h1>
-          <p>What's starting, what's ending, and what needs a person to look at it. Wednesday, October 21, 2026.</p>
+          <p>Desired access comes from HR plus the policies in git. This is how far reality is from it. Wednesday, October 21, 2026.</p>
         </div>
         <div class="actions">
           <a class="btn" href="#import">Import from HR</a>
-          <a class="btn primary" href="#hire">New hire</a>
+          <a class="btn primary" href="#plans">Review plan</a>
         </div>
       </div>
 
       <div class="stats">
-        <div class="stat info"><b>6</b><span>Starting in the next 14 days</span></div>
-        <div class="stat warn"><b>3</b><span>Leaving in the next 14 days</span></div>
-        <div class="stat bad"><b>2</b><span>Failed jobs</span></div>
-        <div class="stat warn"><b>5</b><span>Accounts with access drift</span></div>
+        <div class="stat info"><b>19</b><span>Changes in the current plan</span></div>
+        <div class="stat warn"><b>2</b><span>Changes waiting for approval</span></div>
+        <div class="stat bad"><b>1</b><span>Failed change</span></div>
+        <div class="stat warn"><b>5</b><span>Drift: live differs from state</span></div>
       </div>
 
       <div class="grid2">
         <div class="panel">
-          <header><h2>Upcoming changes</h2><a href="#people" class="btn small">All people</a></header>
+          <header><h2>Current plan</h2><span class="muted">Planned 09:15 from config 8f3c21a and ADP sync 09:00</span></header>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Date</th><th>Person</th><th>Change</th><th>AD account</th></tr></thead>
+              <thead><tr><th>Person</th><th>Why</th><th>Changes</th><th>Status</th></tr></thead>
               <tbody>
-                <tr><td class="nowrap num">Oct 23</td><td><a href="#terminate">Dan Whitfield</a><span class="sub">Sales · Account Executive</span></td><td><span class="pill bad">Leaving</span></td><td><span class="pill">Disable scheduled 17:00</span></td></tr>
-                <tr><td class="nowrap num">Oct 26</td><td>Priya Raman<span class="sub">Finance · Staff Accountant</span></td><td><span class="pill info">Starting</span></td><td><span class="pill bad">Provision failed</span></td></tr>
-                <tr><td class="nowrap num">Oct 26</td><td>Tomás Herrera<span class="sub">Engineering · SRE II</span></td><td><span class="pill info">Starting</span></td><td><span class="pill ok">Created, disabled</span></td></tr>
-                <tr><td class="nowrap num">Nov 2</td><td><a href="#person">Maria Okafor</a><span class="sub">Finance → Treasury</span></td><td><span class="pill accent">Moving</span></td><td><span class="pill">4 group changes queued</span></td></tr>
-                <tr><td class="nowrap num">Nov 2</td><td>Grace Lindqvist<span class="sub">HR · HR Generalist</span></td><td><span class="pill info">Starting</span></td><td><span class="pill">Provision on Oct 30</span></td></tr>
-                <tr><td class="nowrap num">Nov 4</td><td>Owen Pratt<span class="sub">Warehouse · Shift Lead</span></td><td><span class="pill bad">Leaving</span></td><td><span class="pill">Disable scheduled 23:59</span></td></tr>
+                <tr><td>Grace Lindqvist<span class="sub">HR Generalist · starts Nov 2</span></td><td>Joiner (ADP)</td><td class="nowrap"><span class="pill ok">+5</span></td><td><span class="pill">Auto-apply Oct 30 06:00</span></td></tr>
+                <tr><td><a href="#person">Maria Okafor</a><span class="sub">Finance → Treasury · Nov 2</span></td><td>Mover (ADP)</td><td class="nowrap"><span class="pill ok">+1</span> <span class="pill warn">~1</span> <span class="pill bad">−1</span></td><td><span class="pill">Auto-apply Nov 2 06:00</span></td></tr>
+                <tr><td><a href="#terminate">Dan Whitfield</a><span class="sub">Sales · leaves Oct 23 17:00</span></td><td>Leaver (ADP)</td><td class="nowrap"><span class="pill warn">~2</span> <span class="pill bad">−8</span></td><td><span class="pill">Auto-apply Oct 23 17:00</span></td></tr>
+                <tr><td>Aiko Tanaka<span class="sub">Engineering Manager</span></td><td>Grant <span class="mono">eng-prod-readonly</span></td><td class="nowrap"><span class="pill ok">+1</span></td><td><span class="pill warn">Needs approval</span></td></tr>
+                <tr><td>Finance (41 people)</td><td>Policy change <span class="mono">finance</span> v1.2.0 → v1.3.0</td><td class="nowrap"><span class="pill ok">+41</span></td><td><span class="pill warn">Needs approval</span></td></tr>
               </tbody>
             </table>
           </div>
@@ -273,17 +304,17 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
           <header><h2>Needs attention</h2></header>
           <div class="body">
             <div class="callout bad">
-              <strong>Provisioning failed for Priya Raman</strong>
-              <span>The username <code>praman</code> already belongs to a disabled account in <code>OU=Disabled Users</code>. Pick a different username or reclaim the old account.</span>
-              <span><a href="#jobs">Open job #1182</a></span>
+              <strong>activedirectory: create account failed for Priya Raman</strong>
+              <span>The username <code>praman</code> belongs to a disabled account that isn't in state. Import it with <code>iamasc import</code> or set a username in <code>identities/E-004602.yaml</code>.</span>
+              <span><a href="#plans">Open the run</a></span>
             </div>
             <div class="callout warn">
-              <strong>5 accounts have groups IAMasC didn't grant</strong>
-              <span>Found by last night's reconciliation (02:00). Review each one and either record it as approved or remove it.</span>
+              <strong>5 accounts drifted since the last apply</strong>
+              <span>Groups added outside IAMasC, found by the 09:15 refresh. The next plan removes them unless they're adopted into YAML.</span>
             </div>
             <div class="callout info">
-              <strong>ADP sync ran 14 minutes ago</strong>
-              <span>2 new hires and 1 title change imported. Next run at 10:00.</span>
+              <strong>1 provider upgrade available</strong>
+              <span><code>iamasc/salesforce</code> 0.3.1 → 0.4.0. Upgrades go through a pull request that changes the lock file.</span>
             </div>
           </div>
         </div>
@@ -295,7 +326,7 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
       <div class="head">
         <div>
           <h1 id="h-people">People</h1>
-          <p>Everyone IAMasC tracks, from offer accepted to account deleted.</p>
+          <p>Everyone HR knows about, with their accounts in each provider.</p>
         </div>
         <div class="actions"><a class="btn primary" href="#hire">New hire</a></div>
       </div>
@@ -307,19 +338,20 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
           <button class="chip" aria-pressed="false">Active 389</button>
           <button class="chip" aria-pressed="false">Offboarding 3</button>
           <button class="chip" aria-pressed="false">Terminated 14</button>
+          <button class="chip" aria-pressed="false">Drifted 5</button>
         </div>
       </div>
       <div class="panel">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Name</th><th>Employee ID</th><th>Department / title</th><th>Manager</th><th>Status</th><th>Dates</th><th>Apps</th></tr></thead>
+            <thead><tr><th>Name</th><th>Employee ID</th><th>Department / title</th><th>Status</th><th>Accounts</th><th>In sync</th></tr></thead>
             <tbody>
-              <tr><td><a href="#person">Maria Okafor</a><span class="sub mono">mokafor</span></td><td class="mono">E-004127</td><td>Finance<span class="sub">Senior Analyst</span></td><td>Ruth Castellano</td><td><span class="pill ok">Active</span></td><td class="num nowrap">Started Mar 4, 2024</td><td class="num">1</td></tr>
-              <tr><td>Dan Whitfield<span class="sub mono">dwhitfield</span></td><td class="mono">E-003318</td><td>Sales<span class="sub">Account Executive</span></td><td>Kofi Mensah</td><td><span class="pill warn">Offboarding</span></td><td class="num nowrap">Leaves Oct 23</td><td class="num">1</td></tr>
-              <tr><td>Priya Raman<span class="sub mono">(not created)</span></td><td class="mono">E-004602</td><td>Finance<span class="sub">Staff Accountant</span></td><td>Ruth Castellano</td><td><span class="pill info">Pending</span></td><td class="num nowrap">Starts Oct 26</td><td class="num">0</td></tr>
-              <tr><td>Tomás Herrera<span class="sub mono">therrera</span></td><td class="mono">E-004598</td><td>Engineering<span class="sub">SRE II</span></td><td>Aiko Tanaka</td><td><span class="pill info">Pending</span></td><td class="num nowrap">Starts Oct 26</td><td class="num">1</td></tr>
-              <tr><td>Aiko Tanaka<span class="sub mono">atanaka</span></td><td class="mono">E-001956</td><td>Engineering<span class="sub">Engineering Manager</span></td><td>Lena Hoffmann</td><td><span class="pill ok">Active</span></td><td class="num nowrap">Started Jun 12, 2019</td><td class="num">1</td></tr>
-              <tr><td>Marcus Bell<span class="sub mono">mbell</span></td><td class="mono">E-002740</td><td>Warehouse<span class="sub">Forklift Operator</span></td><td>Owen Pratt</td><td><span class="pill">Terminated</span></td><td class="num nowrap">Left Aug 15, 2026<span class="sub">Delete on Nov 13</span></td><td class="num">1</td></tr>
+              <tr><td><a href="#person">Maria Okafor</a></td><td class="mono">E-004127</td><td>Finance<span class="sub">Senior Analyst</span></td><td><span class="pill ok">Active</span></td><td><div class="groups"><code>activedirectory</code><code>salesforce</code><code>netsuite</code></div></td><td><span class="pill bad">Drift</span></td></tr>
+              <tr><td>Dan Whitfield</td><td class="mono">E-003318</td><td>Sales<span class="sub">Account Executive</span></td><td><span class="pill warn">Offboarding</span></td><td><div class="groups"><code>activedirectory</code><code>salesforce</code></div></td><td><span class="pill">Plan pending</span></td></tr>
+              <tr><td>Priya Raman</td><td class="mono">E-004602</td><td>Finance<span class="sub">Staff Accountant</span></td><td><span class="pill info">Pending</span></td><td class="muted">none yet</td><td><span class="pill bad">Apply failed</span></td></tr>
+              <tr><td>Tomás Herrera</td><td class="mono">E-004598</td><td>Engineering<span class="sub">SRE II</span></td><td><span class="pill info">Pending</span></td><td><div class="groups"><code>activedirectory</code></div></td><td><span class="pill ok">In sync</span></td></tr>
+              <tr><td>Aiko Tanaka</td><td class="mono">E-001956</td><td>Engineering<span class="sub">Engineering Manager</span></td><td><span class="pill ok">Active</span></td><td><div class="groups"><code>activedirectory</code></div></td><td><span class="pill warn">Needs approval</span></td></tr>
+              <tr><td>Marcus Bell</td><td class="mono">E-002740</td><td>Warehouse<span class="sub">Forklift Operator</span></td><td><span class="pill">Terminated</span></td><td><div class="groups"><code>activedirectory</code></div></td><td><span class="pill ok">In sync</span><span class="sub">Account removed Nov 13</span></td></tr>
             </tbody>
           </table>
         </div>
@@ -337,60 +369,197 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
           </div>
         </div>
         <div class="actions">
-          <button class="btn" type="button">Edit details</button>
+          <button class="btn" type="button">Add exception</button>
           <a class="btn danger" href="#terminate">Offboard</a>
         </div>
       </div>
 
-      <div class="grid2">
+      <div class="tabs" role="tablist" aria-label="Person views">
+        <button role="tab" aria-selected="true" aria-controls="p-access" id="t-access">Access</button>
+        <button role="tab" aria-selected="false" aria-controls="p-code" id="t-code">Desired state (YAML)</button>
+        <button role="tab" aria-selected="false" aria-controls="p-history" id="t-history">History</button>
+      </div>
+
+      <div class="stack" id="p-access" role="tabpanel" aria-labelledby="t-access">
+        <p class="notes" style="border:0;padding:0">Each section below is drawn from that provider's schema. Active Directory grants a set of groups. Salesforce has one profile, a set of permission sets, and a counted license. NetSuite grants roles at a subsidiary scope. Every grant links to the file that requires it.</p>
+
+        <!-- Active Directory: set of groups -->
         <div class="panel">
-          <header><h2>Access</h2><span class="muted">Active Directory · last checked today 02:00</span></header>
+          <header class="prov"><h2>Active Directory <span class="addr">iamasc/activedirectory 1.0.0</span></h2><span class="muted">Refreshed 09:15</span></header>
           <div class="body">
             <dl class="kv">
-              <dt>Username</dt><dd class="mono">mokafor</dd>
+              <dt>Account</dt><dd><span class="mono">mokafor</span> · <span class="pill ok">Enabled</span></dd>
               <dt>UPN</dt><dd class="mono">maria.okafor@corp.example.com</dd>
-              <dt>Location</dt><dd class="mono">OU=Finance,OU=Users,DC=corp,DC=example,DC=com</dd>
-              <dt>Account</dt><dd><span class="pill ok">Enabled</span> since Mar 4, 2024 08:00</dd>
+              <dt>OU</dt><dd class="mono">OU=Finance,OU=Users,DC=corp,DC=example,DC=com</dd>
             </dl>
           </div>
+          <div class="sub-h"><h3>Groups <span class="shape">set</span></h3></div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Group</th><th>Why they have it</th><th>Granted</th><th>Status</th></tr></thead>
+              <thead><tr><th>Group</th><th>Required by</th><th>Since</th><th>State</th></tr></thead>
               <tbody>
-                <tr><td class="mono">GG-Finance-All</td><td>Access rule: Finance</td><td class="num nowrap">Mar 4, 2024</td><td><span class="pill ok">Current</span></td></tr>
-                <tr><td class="mono">GG-SharePoint-Finance</td><td>Access rule: Finance</td><td class="num nowrap">Mar 4, 2024</td><td><span class="pill warn">Remove Nov 2</span></td></tr>
-                <tr><td class="mono">GG-Treasury-All</td><td>Access rule: Treasury</td><td class="num nowrap">—</td><td><span class="pill info">Add Nov 2</span></td></tr>
-                <tr><td class="mono">GG-Netsuite-Approvers</td><td>Manual · requested by Ruth Castellano<span class="sub">Ticket CHG-20931</span></td><td class="num nowrap">Jan 9, 2025</td><td><span class="pill ok">Current</span></td></tr>
-                <tr><td class="mono">GG-VPN-Contractors</td><td>Found in AD, not granted here</td><td class="num nowrap">Seen Oct 19</td><td><span class="pill bad">Drift</span> <button class="btn small" type="button">Review</button></td></tr>
-                <tr><td class="mono">GG-Finance-Interns</td><td>Access rule: Finance (Intern)</td><td class="num nowrap">Mar 4, 2024</td><td><span class="pill">Removed Jul 1, 2025</span></td></tr>
+                <tr><td class="mono">GG-AllStaff</td><td><a class="src" href="#policies">policies/everyone.yaml</a></td><td class="num nowrap">Mar 4, 2024</td><td><span class="pill ok">In sync</span></td></tr>
+                <tr><td class="mono">GG-Finance-All</td><td><a class="src" href="#policies">corp/finance-analyst@1.2.0</a></td><td class="num nowrap">Mar 4, 2024</td><td><span class="pill ok">In sync</span></td></tr>
+                <tr><td class="mono">GG-SharePoint-Finance</td><td><a class="src" href="#policies">corp/finance-analyst@1.2.0</a></td><td class="num nowrap">Mar 4, 2024</td><td><span class="pill bad">− Nov 2</span></td></tr>
+                <tr><td class="mono">GG-Treasury-All</td><td><a class="src" href="#policies">corp/treasury@1.0.0</a> after move</td><td class="num nowrap">—</td><td><span class="pill ok">+ Nov 2</span></td></tr>
+                <tr><td class="mono">GG-VPN-Contractors</td><td class="muted">Nothing. Added outside IAMasC.</td><td class="num nowrap">Seen Oct 19</td><td><span class="pill bad">Drift</span> <button class="btn small" type="button">Adopt to YAML</button></td></tr>
               </tbody>
             </table>
           </div>
         </div>
 
+        <!-- Salesforce: single + set + countable -->
         <div class="panel">
-          <header><h2>History</h2></header>
+          <header class="prov"><h2>Salesforce <span class="addr">iamasc/salesforce 0.3.1</span></h2><span class="muted">Refreshed 09:15</span></header>
+          <div class="single"><span class="muted">Account</span> <span class="mono">maria.okafor@corp.example.com</span> <span class="pill ok">Active</span></div>
+          <div class="single"><span class="muted">Profile <span class="shape">single</span></span> <strong>Finance User</strong> <span class="pill warn">~ Treasury User on Nov 2</span> <a class="src" href="#policies">corp/finance-analyst@1.2.0</a></div>
+          <div class="single">
+            <span class="muted">License <span class="shape">set · counted</span></span> <strong>Salesforce</strong>
+            <span class="seats"><span class="bar"><i style="width:91%"></i></span><span class="num">182 of 200 seats used</span></span>
+          </div>
+          <div class="sub-h"><h3>Permission sets <span class="shape">set</span></h3></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Permission set</th><th>Required by</th><th>Since</th><th>State</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">Reports_Viewer</td><td><a class="src" href="#policies">corp/finance-analyst@1.2.0</a></td><td class="num nowrap">Mar 4, 2024</td><td><span class="pill ok">In sync</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- NetSuite: scoped -->
+        <div class="panel">
+          <header class="prov"><h2>NetSuite <span class="addr">iamasc/netsuite 0.1.4</span></h2><span class="muted">Refreshed 09:15</span></header>
+          <div class="sub-h"><h3>Roles <span class="shape">scoped</span></h3></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Role</th><th>Scope</th><th>Required by</th><th>Expires</th><th>State</th></tr></thead>
+              <tbody>
+                <tr><td>Approver</td><td class="mono">subsidiary: US</td><td><a class="src" href="#policies">identities/E-004127.yaml</a><span class="sub">CHG-20931 · approved by E-001104 · privileged</span></td><td class="num nowrap">Dec 31, 2026</td><td><span class="pill ok">In sync</span></td></tr>
+                <tr><td>Finance Viewer</td><td class="mono">subsidiary: US</td><td><a class="src" href="#policies">corp/finance-analyst@1.2.0</a></td><td class="muted">—</td><td><span class="pill ok">In sync</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="stack" id="p-code" role="tabpanel" aria-labelledby="t-code" hidden>
+        <div class="panel">
+          <header><h2>Computed desired state</h2><span class="muted">From ADP attributes + policies + grants at config 8f3c21a. Read only; change the source files instead.</span></header>
+          <div class="body">
+<pre class="yaml"><span class="k">identity:</span> E-004127
+<span class="k">attributes:</span>                      <span class="c"># from iamasc/adp</span>
+  <span class="k">department:</span> Finance
+  <span class="k">title:</span> Senior Analyst
+  <span class="k">location:</span> Chicago
+  <span class="k">status:</span> Active
+<span class="k">sources:</span> [policies/everyone.yaml, policies/chicago.yaml, policies/finance.yaml, identities/E-004127.yaml]
+<span class="k">activedirectory:</span>
+  <span class="k">account:</span> { <span class="k">state:</span> enabled, <span class="k">ou:</span> "OU=Finance,OU=Users,DC=corp,DC=example,DC=com" }
+  <span class="k">group:</span> [GG-AllStaff, GG-Chicago, GG-Printers-CHI, GG-Finance-All, GG-SharePoint-Finance]
+<span class="k">salesforce:</span>
+  <span class="k">account:</span> { <span class="k">state:</span> active, <span class="k">license:</span> Salesforce }
+  <span class="k">profile:</span> Finance User
+  <span class="k">permissionSet:</span> [Reports_Viewer]
+<span class="k">netsuite:</span>
+  <span class="k">role:</span>
+    - { <span class="k">name:</span> Finance Viewer, <span class="k">subsidiary:</span> US }
+    - { <span class="k">name:</span> Approver, <span class="k">subsidiary:</span> US, <span class="k">expires:</span> 2026-12-31 }</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="stack" id="p-history" role="tabpanel" aria-labelledby="t-history" hidden>
+        <div class="panel">
           <div class="body">
             <ol class="timeline">
-              <li><span class="when">Nov 2, 2026 · scheduled</span><strong>Department change: Finance → Treasury</strong><span class="muted">From ADP. 1 group added, 1 removed, manual grants kept.</span></li>
-              <li><span class="when">Oct 19, 2026 02:00</span><strong>Drift found</strong><span class="muted">GG-VPN-Contractors present in AD with no record of a grant.</span></li>
-              <li><span class="when">Jul 1, 2025</span><strong>Title change: Analyst → Senior Analyst</strong><span class="muted">From ADP. GG-Finance-Interns removed.</span></li>
-              <li><span class="when">Jan 9, 2025</span><strong>Manual grant: GG-Netsuite-Approvers</strong><span class="muted">By jlee, ticket CHG-20931.</span></li>
-              <li><span class="when">Mar 4, 2024 08:00</span><strong>Account enabled on start date</strong></li>
-              <li><span class="when">Mar 1, 2024 06:00</span><strong>Account created (disabled)</strong><span class="muted">Username mokafor, 3 groups from access rules.</span></li>
-              <li><span class="when">Feb 12, 2024</span><strong>Hired</strong><span class="muted">From ADP, start date Mar 4, 2024.</span></li>
+              <li><span class="when">Nov 2, 2026 · planned</span><strong>Mover: Finance → Treasury</strong><span class="muted">3 changes across activedirectory and salesforce. Exception in identities/E-004127.yaml kept.</span></li>
+              <li><span class="when">Oct 19, 2026 09:15</span><strong>Drift found</strong><span class="muted">GG-VPN-Contractors present in AD, not in state.</span></li>
+              <li><span class="when">Jan 9, 2025</span><strong>Exception added: NetSuite Approver</strong><span class="muted">Commit 41be09c by jlee, PR #212 approved by rcastellano.</span></li>
+              <li><span class="when">Mar 4, 2024 08:00</span><strong>Apply: accounts enabled</strong><span class="muted">Run 0193, config 2a7d5e1.</span></li>
+              <li><span class="when">Mar 1, 2024 06:00</span><strong>Apply: 3 accounts created disabled, 7 grants</strong><span class="muted">Run 0187, config 2a7d5e1.</span></li>
+              <li><span class="when">Feb 12, 2024</span><strong>Joiner from ADP</strong><span class="muted">Start date Mar 4, 2024.</span></li>
             </ol>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 4. New hire -->
+    <!-- 4. Plans -->
+    <section class="screen" id="plans" aria-labelledby="h-plans" hidden>
+      <div class="head">
+        <div>
+          <h1 id="h-plans">Plans</h1>
+          <p>Every apply runs a saved plan exactly as shown. HR-driven changes apply on schedule; exceptions, privileged access, and policy changes wait for approval here.</p>
+        </div>
+        <div class="actions"><button class="btn" type="button">Plan now</button></div>
+      </div>
+
+      <div class="panel">
+        <header>
+          <h2>Policy change: <span class="mono">finance</span> uses corp/finance-analyst 1.3.0</h2>
+          <div class="summary"><span class="pill ok">+41</span><span class="pill warn">Needs approval</span></div>
+        </header>
+        <div class="body">
+          <p class="muted">From pull request #231 by rcastellano, merged as commit 8f3c21a. Adds a Salesforce permission set for everyone in Finance.</p>
+<pre class="diff"><span class="c"># policies/finance.yaml</span>
+<span class="del">-      version: "1.2.0"</span>
+<span class="add">+      version: "1.3.0"</span>
+
+<span class="c"># plan</span>
+<span class="k">  # 41 identities matched by policy finance</span>
+<span class="add">  + salesforce.permissionSet   Forecasting_Editor   on 41 accounts</span>
+
+<span class="c">  Plan: 41 to add, 0 to change, 0 to remove.</span></pre>
+          <div class="approve">
+            <span class="muted">Approvers: IAMasC-Admins. You can't approve a change you authored.</span>
+            <div class="actions"><button class="btn" type="button">Reject</button><button class="btn primary" type="button">Approve and apply</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <header><h2>Scheduled: HR changes</h2><div class="summary"><span class="pill ok">+6</span><span class="pill warn">~3</span><span class="pill bad">−9</span></div></header>
+        <div class="body">
+<pre class="diff"><span class="k">  # E-004611 Grace Lindqvist · joiner · applies Oct 30 06:00</span>
+<span class="add">  + activedirectory.account   glindqvist   disabled, OU=HR,OU=Users</span>
+<span class="add">  + activedirectory.group     GG-AllStaff, GG-Chicago, GG-HR-All, GG-Workday-Readers</span>
+
+<span class="k">  # E-004127 Maria Okafor · mover Finance → Treasury · applies Nov 2 06:00</span>
+<span class="del">  - activedirectory.group     GG-SharePoint-Finance</span>
+<span class="add">  + activedirectory.group     GG-Treasury-All</span>
+<span class="chg">  ~ salesforce.profile        Finance User → Treasury User</span>
+
+<span class="k">  # E-003318 Dan Whitfield · leaver · applies Oct 23 17:00</span>
+<span class="chg">  ~ activedirectory.account   dwhitfield   enabled → disabled, OU=Disabled Users</span>
+<span class="del">  - activedirectory.group     6 groups (snapshot saved)</span>
+<span class="chg">  ~ salesforce.account        active → frozen, license released</span>
+<span class="del">  - salesforce.permissionSet  Sales_Cloud_User, Quote_Approver</span></pre>
+        </div>
+      </div>
+
+      <div class="panel">
+        <header><h2>Recent runs</h2></header>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Run</th><th>Config</th><th>Started</th><th>Changes</th><th>Result</th><th></th></tr></thead>
+            <tbody>
+              <tr><td class="mono">0412</td><td class="mono">8f3c21a</td><td class="num nowrap">Oct 21 06:00</td><td class="num">4</td><td><span class="pill bad">1 failed</span><span class="sub">activedirectory.account praman: username taken by an account not in state.</span></td><td class="nowrap"><button class="btn small" type="button">Retry failed</button></td></tr>
+              <tr><td class="mono">0411</td><td class="mono">8f3c21a</td><td class="num nowrap">Oct 20 23:59</td><td class="num">7</td><td><span class="pill ok">Applied</span></td><td></td></tr>
+              <tr><td class="mono">0410</td><td class="mono">c09e7b4</td><td class="num nowrap">Oct 20 06:00</td><td class="num">12</td><td><span class="pill ok">Applied</span></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. New hire -->
     <section class="screen" id="hire" aria-labelledby="h-hire" hidden>
       <div class="head">
         <div>
           <h1 id="h-hire">New hire</h1>
-          <p>For people HR hasn't entered in ADP yet, or contractors that never go through HR. Anything ADP sends later is matched on employee ID.</p>
+          <p>For people HR hasn't entered in ADP yet, or contractors who never go through HR. This records an HR event. Access still comes from policies, so you'll see the plan it produces.</p>
         </div>
       </div>
       <div class="grid2">
@@ -410,37 +579,36 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
                 <div class="field"><label for="h-loc">Location</label><select id="h-loc"><option>Chicago</option><option>Remote (US)</option><option>Reno warehouse</option></select></div>
                 <div class="field"><label for="h-type">Worker type</label><select id="h-type"><option>Employee</option><option>Contractor</option><option>Intern</option></select></div>
                 <div class="field"><label for="h-start">Start date</label><input id="h-start" type="date" value="2026-11-02"></div>
-                <div class="field"><label for="h-end">End date</label><input id="h-end" type="date"><span class="hint">Required for contractors and interns.</span></div>
               </fieldset>
             </div>
           </div>
         </form>
 
         <div class="panel">
-          <header><h2>What will happen</h2></header>
+          <header><h2>Plan preview</h2></header>
           <div class="body">
-            <dl class="kv">
-              <dt>Username</dt><dd class="mono">glindqvist</dd>
-              <dt>Email / UPN</dt><dd class="mono">grace.lindqvist@corp.example.com</dd>
-              <dt>Location</dt><dd class="mono">OU=HR,OU=Users,DC=corp,DC=example,DC=com</dd>
-              <dt>Groups</dt><dd><div class="groups"><code>GG-AllStaff</code><code>GG-Chicago</code><code>GG-HR-All</code><code>GG-Workday-Readers</code></div><span class="muted">From rules “Everyone”, “Chicago office”, “Human Resources”.</span></dd>
-            </dl>
-            <ul class="plan">
-              <li><span class="when">Oct 30 06:00</span><span>Create the AD account <strong>disabled</strong>, with a random password, and add the 4 groups.</span></li>
-              <li><span class="when">Nov 2 07:00</span><span>Enable the account. The manager gets the first-login instructions.</span></li>
-            </ul>
-            <div class="actions"><button class="btn" type="button">Save as draft</button><button class="btn primary" type="button">Create person</button></div>
+            <p class="muted">Matched policies: <a class="src" href="#policies">everyone</a> <a class="src" href="#policies">chicago-office</a> <a class="src" href="#policies">human-resources</a></p>
+<pre class="diff"><span class="add">+ activedirectory.account  glindqvist</span>
+<span class="c">    upn  grace.lindqvist@corp.example.com</span>
+<span class="c">    ou   OU=HR,OU=Users,DC=corp,DC=example,DC=com</span>
+<span class="c">    state disabled until Nov 2 07:00</span>
+<span class="add">+ activedirectory.group    GG-AllStaff</span>
+<span class="add">+ activedirectory.group    GG-Chicago</span>
+<span class="add">+ activedirectory.group    GG-HR-All</span>
+<span class="add">+ activedirectory.group    GG-Workday-Readers</span></pre>
+            <p class="muted">Joiners auto-apply 3 days before the start date (lifecycle.yaml).</p>
+            <div class="actions"><button class="btn" type="button">Save as draft</button><button class="btn primary" type="button">Record hire</button></div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 5. Terminate -->
+    <!-- 6. Offboard -->
     <section class="screen" id="terminate" aria-labelledby="h-term" hidden>
       <div class="head">
         <div>
           <h1 id="h-term">Offboard Dan Whitfield</h1>
-          <p>Account Executive, Sales · <span class="mono">E-003318</span> · <span class="mono">dwhitfield</span></p>
+          <p>Account Executive, Sales · <span class="mono">E-003318</span></p>
         </div>
       </div>
       <div class="grid2">
@@ -448,38 +616,41 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
           <header><h2>Details</h2></header>
           <div class="body">
             <div class="form">
-              <div class="field"><label for="t-type">Type</label><select id="t-type"><option>Voluntary (scheduled)</option><option>Involuntary (immediate)</option></select><span class="hint">Involuntary disables the account the moment you confirm.</span></div>
+              <div class="field"><label for="t-type">Type</label><select id="t-type"><option>Voluntary (scheduled)</option><option>Involuntary (immediate)</option></select><span class="hint">Involuntary applies the moment you confirm (lifecycle.yaml override).</span></div>
               <div class="field"><label for="t-when">Last day and time</label><input id="t-when" type="datetime-local" value="2026-10-23T17:00"></div>
               <div class="field"><label for="t-ticket">Ticket</label><input id="t-ticket" class="mono" value="HR-7714"></div>
-              <div class="field"><label for="t-retain">Delete account after</label><select id="t-retain"><option>90 days (Jan 21, 2027)</option><option>30 days</option><option>Never (legal hold)</option></select></div>
-              <div class="field wide"><label for="t-notes">Notes</label><textarea id="t-notes" rows="2">Laptop return scheduled with IT.</textarea></div>
+              <div class="field"><label for="t-retain">Delete accounts after</label><select id="t-retain"><option>90 days (Jan 21, 2027)</option><option>Never (legal hold)</option></select></div>
             </div>
           </div>
         </form>
 
         <div class="panel">
-          <header><h2>What will happen</h2></header>
+          <header><h2>Plan preview</h2></header>
           <div class="body">
-            <ul class="plan">
-              <li><span class="when">Now</span><span>Save a copy of the current access: 6 groups, including 1 manual grant (<code>GG-Salesforce-Admins</code>).</span></li>
-              <li><span class="when">Oct 23 17:00</span><span>Disable the account, reset the password, and remove all 6 groups.</span></li>
-              <li><span class="when">Oct 23 17:00</span><span>Move to <code class="mono">OU=Disabled Users</code> and set the description to “Left 2026-10-23, HR-7714”.</span></li>
-              <li><span class="when">Jan 21, 2027</span><span>Delete the account. The access history stays in IAMasC.</span></li>
-            </ul>
-            <div class="callout warn"><span>Dan manages 2 people. Their manager field will point to <strong>Kofi Mensah</strong> until HR assigns someone.</span></div>
-            <div class="field"><label for="t-confirm">Type <strong>dwhitfield</strong> to confirm</label><input id="t-confirm" class="mono" autocomplete="off"></div>
-            <div class="actions"><a class="btn" href="#people">Cancel</a><button class="btn danger" id="t-go" type="button" disabled>Schedule offboarding</button></div>
+            <p class="muted">Every provider with an account for this person is included. Current access is snapshotted before anything is removed.</p>
+<pre class="diff"><span class="k"># activedirectory</span>
+<span class="chg">~ account  dwhitfield  enabled → disabled</span>
+<span class="chg">           move to OU=Disabled Users, description "Left 2026-10-23, HR-7714"</span>
+<span class="del">- group    6 groups, including 1 exception (GG-Salesforce-Admins)</span>
+<span class="k"># salesforce</span>
+<span class="chg">~ account  active → frozen, release 1 Salesforce license</span>
+<span class="del">- permissionSet  Sales_Cloud_User, Quote_Approver</span>
+<span class="k"># later, Jan 21 2027</span>
+<span class="del">- activedirectory.account, salesforce.account</span></pre>
+            <div class="callout warn"><span>Dan manages 2 people. Their manager attribute will point to <strong>Kofi Mensah</strong> until HR assigns someone.</span></div>
+            <div class="field"><label for="t-confirm">Type <strong>E-003318</strong> to confirm</label><input id="t-confirm" class="mono" autocomplete="off"></div>
+            <div class="actions"><a class="btn" href="#people">Cancel</a><button class="btn danger" id="t-go" type="button" disabled>Record termination</button></div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 6. Import -->
+    <!-- 7. Import -->
     <section class="screen" id="import" aria-labelledby="h-import" hidden>
       <div class="head">
         <div>
           <h1 id="h-import">Import from HR</h1>
-          <p>Upload an HR export to add hires, changes, and terminations in bulk. Nothing is saved until you confirm the preview.</p>
+          <p>Upload an HR export when there's no API. Rows become HR events, and the next plan shows the access they cause. Nothing is saved until you confirm.</p>
         </div>
       </div>
       <ol class="steps"><li class="done">1 Upload</li><li class="done">2 Match columns</li><li class="on">3 Review</li><li>4 Done</li></ol>
@@ -496,13 +667,13 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
         <header><h2>Preview</h2><div class="chips"><span class="pill ok">10 ready</span><span class="pill warn">1 warning</span><span class="pill bad">1 error</span></div></header>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Row</th><th>Employee ID</th><th>Name</th><th>Change</th><th>Start</th><th>Result</th></tr></thead>
+            <thead><tr><th>Row</th><th>Employee ID</th><th>Name</th><th>Event</th><th>Effective</th><th>Planned changes</th><th>Result</th></tr></thead>
             <tbody>
-              <tr><td class="num">2</td><td class="mono">E-004611</td><td>Grace Lindqvist</td><td>New hire</td><td class="num nowrap">Nov 2</td><td><span class="pill ok">Ready</span></td></tr>
-              <tr><td class="num">3</td><td class="mono">E-004612</td><td>Samuel Adeyemi</td><td>New hire</td><td class="num nowrap">Nov 2</td><td><span class="pill ok">Ready</span></td></tr>
-              <tr><td class="num">4</td><td class="mono">E-004127</td><td>Maria Okafor</td><td>Department change</td><td class="num nowrap">Nov 2</td><td><span class="pill ok">Ready</span></td></tr>
-              <tr><td class="num">7</td><td class="mono">E-004615</td><td>Li Wei</td><td>New hire</td><td class="num nowrap">Nov 9</td><td><span class="pill warn">Warning</span><span class="sub">Department “Fin” matched to Finance. Check it.</span></td></tr>
-              <tr><td class="num">11</td><td class="mono">—</td><td>Jordan Ellis</td><td>New hire</td><td class="num nowrap">Nov 9</td><td><span class="pill bad">Error</span><span class="sub">Employee ID is empty. Row will be skipped.</span></td></tr>
+              <tr><td class="num">2</td><td class="mono">E-004611</td><td>Grace Lindqvist</td><td>Joiner</td><td class="num nowrap">Nov 2</td><td><span class="pill ok">+5</span></td><td><span class="pill ok">Ready</span></td></tr>
+              <tr><td class="num">3</td><td class="mono">E-004612</td><td>Samuel Adeyemi</td><td>Joiner</td><td class="num nowrap">Nov 2</td><td><span class="pill ok">+4</span></td><td><span class="pill ok">Ready</span></td></tr>
+              <tr><td class="num">4</td><td class="mono">E-004127</td><td>Maria Okafor</td><td>Mover</td><td class="num nowrap">Nov 2</td><td class="nowrap"><span class="pill ok">+1</span> <span class="pill warn">~1</span> <span class="pill bad">−1</span></td><td><span class="pill ok">Ready</span></td></tr>
+              <tr><td class="num">7</td><td class="mono">E-004615</td><td>Li Wei</td><td>Joiner</td><td class="num nowrap">Nov 9</td><td><span class="pill ok">+7</span></td><td><span class="pill warn">Warning</span><span class="sub">Department “Fin” matched to Finance. Check it.</span></td></tr>
+              <tr><td class="num">11</td><td class="mono">—</td><td>Jordan Ellis</td><td>Joiner</td><td class="num nowrap">Nov 9</td><td class="muted">—</td><td><span class="pill bad">Error</span><span class="sub">Employee ID is empty. Row will be skipped.</span></td></tr>
             </tbody>
           </table>
         </div>
@@ -510,106 +681,119 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
       <div class="actions"><button class="btn" type="button">Back</button><button class="btn primary" type="button">Import 11 rows, skip 1</button></div>
     </section>
 
-    <!-- 7. Jobs -->
-    <section class="screen" id="jobs" aria-labelledby="h-jobs" hidden>
+    <!-- 8. Policies & modules -->
+    <section class="screen" id="policies" aria-labelledby="h-policies" hidden>
       <div class="head">
         <div>
-          <h1 id="h-jobs">Jobs</h1>
-          <p>Every change IAMasC makes in another system runs as a job. Failed jobs retry 3 times, then wait here for a person.</p>
+          <h1 id="h-policies">Policies &amp; modules</h1>
+          <p>Read from the config repo at commit <span class="mono">8f3c21a</span>. Edits here open a pull request, so they get the same review as any other change.</p>
         </div>
+        <div class="actions"><button class="btn primary" type="button">New policy</button></div>
       </div>
-      <div class="toolbar">
-        <div class="chips" role="group" aria-label="Filter by status">
-          <button class="chip" aria-pressed="false">Scheduled 14</button>
-          <button class="chip" aria-pressed="false">Running 0</button>
-          <button class="chip" aria-pressed="true">Failed 2</button>
-          <button class="chip" aria-pressed="false">Done today 23</button>
+      <div class="grid2">
+        <div class="panel">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Policy</th><th>Matches</th><th>Grants</th><th>People</th></tr></thead>
+              <tbody>
+                <tr><td><a href="#policies" class="src">everyone</a></td><td>Everyone</td><td><div class="groups"><code>activedirectory</code></div></td><td class="num">412</td></tr>
+                <tr><td><a href="#policies" class="src">chicago-office</a></td><td>location = Chicago</td><td><div class="groups"><code>activedirectory</code></div></td><td class="num">203</td></tr>
+                <tr style="background:var(--accent-soft)"><td><a href="#policies" class="src">finance</a></td><td>department = Finance</td><td><div class="groups"><code>corp/finance-analyst@1.2.0</code></div></td><td class="num">41</td></tr>
+                <tr><td><a href="#policies" class="src">human-resources</a></td><td>department = Human Resources</td><td><div class="groups"><code>activedirectory</code><code>workday</code></div></td><td class="num">9</td></tr>
+                <tr><td><a href="#policies" class="src">contractors</a></td><td>workerType = Contractor</td><td><div class="groups"><code>activedirectory</code></div></td><td class="num">18</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-      <div class="panel">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Job</th><th>Action</th><th>Person</th><th>When</th><th>Attempts</th><th>Result</th><th></th></tr></thead>
-            <tbody>
-              <tr><td class="mono">#1182</td><td><span class="mono">ad.provision</span><span class="sub">Active Directory</span></td><td>Priya Raman</td><td class="num nowrap">Oct 21 06:00</td><td class="num">3 / 3</td><td><span class="pill bad">Failed</span><span class="sub">Username praman already exists (disabled, OU=Disabled Users).</span></td><td class="nowrap"><button class="btn small" type="button">Change username</button> <button class="btn small" type="button">Retry</button></td></tr>
-              <tr><td class="mono">#1176</td><td><span class="mono">ad.revoke</span><span class="sub">Active Directory</span></td><td>Marcus Bell</td><td class="num nowrap">Oct 20 23:59</td><td class="num">3 / 3</td><td><span class="pill bad">Failed</span><span class="sub">Access denied removing GG-Forklift-Certified. The service account can't write to OU=Restricted Groups.</span></td><td class="nowrap"><button class="btn small" type="button">Retry</button></td></tr>
-              <tr><td class="mono">#1190</td><td><span class="mono">ad.disable</span><span class="sub">Active Directory</span></td><td>Dan Whitfield</td><td class="num nowrap">Oct 23 17:00</td><td class="num">0 / 3</td><td><span class="pill">Scheduled</span></td><td class="nowrap"><button class="btn small" type="button">Run now</button></td></tr>
-              <tr><td class="mono">#1185</td><td><span class="mono">ad.provision</span><span class="sub">Active Directory</span></td><td>Tomás Herrera</td><td class="num nowrap">Oct 21 06:00</td><td class="num">1 / 3</td><td><span class="pill ok">Done</span><span class="sub">Created therrera (disabled), 5 groups.</span></td><td></td></tr>
-            </tbody>
-          </table>
+        <div class="panel">
+          <header><h2 class="mono" style="font-family:var(--font-data);font-size:.85rem">modules/finance-analyst/module.yaml</h2><span class="pill accent">v1.2.0</span></header>
+          <div class="body">
+<pre class="yaml"><span class="k">apiVersion:</span> iamasc.dev/v1
+<span class="k">kind:</span> Module
+<span class="k">metadata:</span>
+  <span class="k">name:</span> finance-analyst
+  <span class="k">namespace:</span> corp
+  <span class="k">version:</span> 1.2.0
+<span class="k">spec:</span>
+  <span class="k">inputs:</span>
+    <span class="k">costCenter:</span> { <span class="k">type:</span> string, <span class="k">required:</span> true }
+  <span class="k">grants:</span>
+    <span class="k">activedirectory:</span>
+      <span class="k">account:</span> { <span class="k">ou:</span> "OU=Finance,OU=Users,DC=corp,..." }
+      <span class="k">group:</span> [GG-Finance-All, GG-SharePoint-Finance]
+    <span class="k">salesforce:</span>
+      <span class="k">account:</span> { <span class="k">license:</span> Salesforce }
+      <span class="k">profile:</span> Finance User
+      <span class="k">permissionSet:</span> [Reports_Viewer]
+    <span class="k">netsuite:</span>
+      <span class="k">role:</span> [{ <span class="k">name:</span> Finance Viewer, <span class="k">subsidiary:</span> US }]</pre>
+            <div class="actions"><button class="btn small" type="button">Edit (opens a PR)</button><button class="btn small" type="button">Preview impact</button></div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- 8. Applications -->
-    <section class="screen" id="apps" aria-labelledby="h-apps" hidden>
+    <!-- 9. Providers -->
+    <section class="screen" id="providers" aria-labelledby="h-providers" hidden>
       <div class="head">
         <div>
-          <h1 id="h-apps">Applications</h1>
-          <p>Systems IAMasC reads people from and grants access in. Each one is a connector you turn on separately.</p>
+          <h1 id="h-providers">Providers</h1>
+          <p>Each provider teaches IAMasC one application: what an account is and what kinds of permissions it has. Versions are pinned in <span class="mono">.iamasc.lock.yaml</span> and verified by hash and signature.</p>
         </div>
+        <div class="actions"><button class="btn" type="button">Browse registry</button></div>
       </div>
       <div class="apps">
         <article class="app-card">
-          <header><div><span class="kind">Access</span><h2>Active Directory</h2></div><span class="pill ok">Connected</span></header>
+          <header><div><span class="kind">iamasc/activedirectory</span><h2>Active Directory</h2></div><span class="pill ok">Connected</span></header>
           <dl class="kv">
-            <dt>Domain</dt><dd class="mono">corp.example.com</dd>
-            <dt>Server</dt><dd class="mono">dc01.corp.example.com</dd>
-            <dt>Service account</dt><dd class="mono">svc-iamasc</dd>
-            <dt>Mode</dt><dd><span class="pill warn">Dry run</span></dd>
-            <dt>Last check</dt><dd>Today 02:00, 412 accounts</dd>
+            <dt>Version</dt><dd><span class="mono">1.0.0</span> · constraint <span class="mono">~&gt; 1.0</span></dd>
+            <dt>Permissions</dt><dd><div class="groups"><code>group · set</code><code>attribute</code></div></dd>
+            <dt>Managing</dt><dd>412 accounts, 1,906 grants</dd>
+            <dt>Signature</dt><dd><span class="pill ok">Verified</span></dd>
           </dl>
-          <footer><button class="btn small" type="button">Test connection</button><button class="btn small" type="button">Settings</button></footer>
+          <footer><button class="btn small" type="button">Test connection</button><button class="btn small" type="button">Import existing</button></footer>
         </article>
         <article class="app-card">
-          <header><div><span class="kind">HR source</span><h2>ADP Workforce Now</h2></div><span class="pill ok">Syncing</span></header>
+          <header><div><span class="kind">iamasc/salesforce</span><h2>Salesforce</h2></div><span class="pill ok">Connected</span></header>
           <dl class="kv">
-            <dt>Checks every</dt><dd>1 hour</dd>
-            <dt>Last run</dt><dd>09:00 · 2 hires, 1 change</dd>
-            <dt>Certificate</dt><dd>Expires Mar 3, 2027</dd>
+            <dt>Version</dt><dd><span class="mono">0.3.1</span> · <span class="pill info">0.4.0 available</span></dd>
+            <dt>Permissions</dt><dd><div class="groups"><code>profile · single</code><code>permissionSet · set</code><code>license · counted</code></div></dd>
+            <dt>Managing</dt><dd>182 accounts</dd>
+            <dt>Signature</dt><dd><span class="pill ok">Verified</span></dd>
           </dl>
-          <footer><button class="btn small" type="button">Run now</button><button class="btn small" type="button">Settings</button></footer>
+          <footer><button class="btn small" type="button">Upgrade (opens a PR)</button></footer>
         </article>
         <article class="app-card">
-          <header><div><span class="kind">HR source</span><h2>CSV upload</h2></div><span class="pill ok">On</span></header>
-          <p class="muted">For HR systems without an API. 2 saved column mappings.</p>
-          <footer><a class="btn small" href="#import">Import a file</a></footer>
+          <header><div><span class="kind">iamasc/netsuite</span><h2>NetSuite</h2></div><span class="pill ok">Connected</span></header>
+          <dl class="kv">
+            <dt>Version</dt><dd><span class="mono">0.1.4</span></dd>
+            <dt>Permissions</dt><dd><div class="groups"><code>role · scoped (subsidiary)</code></div></dd>
+            <dt>Managing</dt><dd>44 accounts</dd>
+            <dt>Signature</dt><dd><span class="pill ok">Verified</span></dd>
+          </dl>
+          <footer><button class="btn small" type="button">Test connection</button></footer>
         </article>
-        <article class="app-card soon">
-          <header><div><span class="kind">Access</span><h2>Microsoft Entra ID &amp; 365</h2></div><span class="pill">Planned</span></header>
-          <p>Licenses, cloud groups, mailbox handoff on offboarding.</p>
+        <article class="app-card">
+          <header><div><span class="kind">iamasc/adp · data source</span><h2>ADP Workforce Now</h2></div><span class="pill ok">Syncing</span></header>
+          <dl class="kv">
+            <dt>Version</dt><dd><span class="mono">1.0.2</span></dd>
+            <dt>Provides</dt><dd>People and HR attributes</dd>
+            <dt>Last sync</dt><dd>09:00 · 2 joiners, 1 mover</dd>
+          </dl>
+          <footer><button class="btn small" type="button">Sync now</button></footer>
         </article>
-        <article class="app-card soon">
-          <header><div><span class="kind">Inventory</span><h2>Software inventory</h2></div><span class="pill">Planned</span></header>
-          <p>Which installed software and seats each person holds, reclaimed on offboarding.</p>
-        </article>
-      </div>
-    </section>
-
-    <!-- 9. Access rules -->
-    <section class="screen" id="rules" aria-labelledby="h-rules" hidden>
-      <div class="head">
-        <div>
-          <h1 id="h-rules">Access rules</h1>
-          <p>The groups and OU a person gets automatically, based on HR data. All matching rules apply. For the OU, the highest rule wins.</p>
-        </div>
-        <div class="actions"><button class="btn primary" type="button">Add rule</button></div>
       </div>
       <div class="panel">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Order</th><th>Rule</th><th>Applies when</th><th>OU</th><th>Groups</th><th>People</th></tr></thead>
-            <tbody>
-              <tr><td class="num">1</td><td>Contractors</td><td>Worker type = Contractor</td><td class="mono">OU=Contractors,OU=Users</td><td><div class="groups"><code>GG-Contractors</code><code>GG-VPN-Contractors</code></div></td><td class="num">18</td></tr>
-              <tr><td class="num">2</td><td>Finance</td><td>Department = Finance</td><td class="mono">OU=Finance,OU=Users</td><td><div class="groups"><code>GG-Finance-All</code><code>GG-SharePoint-Finance</code></div></td><td class="num">41</td></tr>
-              <tr><td class="num">3</td><td>Human Resources</td><td>Department = Human Resources</td><td class="mono">OU=HR,OU=Users</td><td><div class="groups"><code>GG-HR-All</code><code>GG-Workday-Readers</code></div></td><td class="num">9</td></tr>
-              <tr><td class="num">4</td><td>Chicago office</td><td>Location = Chicago</td><td class="muted">—</td><td><div class="groups"><code>GG-Chicago</code><code>GG-Printers-CHI</code></div></td><td class="num">203</td></tr>
-              <tr><td class="num">5</td><td>Everyone</td><td>Always</td><td class="mono">OU=Users</td><td><div class="groups"><code>GG-AllStaff</code></div></td><td class="num">412</td></tr>
-            </tbody>
-          </table>
+        <header><h2>From the registry</h2><span class="muted">Not installed</span></header>
+        <div class="body">
+          <div class="reg">
+            <div><strong>iamasc/entra</strong><p class="muted">Entra ID users, groups, app roles, and M365 licenses. <span class="mono">group · set</span> <span class="mono">appRole · scoped</span> <span class="mono">license · counted</span></p></div>
+            <div><strong>iamasc/github</strong><p class="muted">Org membership and teams. <span class="mono">orgRole · single</span> <span class="mono">team · scoped</span></p></div>
+            <div><strong>iamasc/sqlserver</strong><p class="muted">Logins and database grants. <span class="mono">grant · matrix</span></p></div>
+            <div><strong>iamasc/snipeit</strong><p class="muted">Inventory data source: software seats and hardware assigned to each person.</p></div>
+          </div>
         </div>
       </div>
-      <p class="notes">Changing a rule shows a preview of who gains and loses access before it's saved. Changes then go out as jobs, so they appear in the job list and the history of each person.</p>
     </section>
 
     <!-- 10. Sign-in -->
@@ -623,7 +807,7 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
           <div class="field"><label for="l-user">Username</label><input id="l-user" class="mono" placeholder="CORP\jlee or jlee@corp.example.com" autocomplete="username"></div>
           <div class="field"><label for="l-pass">Password</label><input id="l-pass" type="password" autocomplete="current-password"></div>
           <button class="btn" type="button">Sign in</button>
-          <p class="muted" style="font-size:.78rem">Access depends on your group: IAMasC-Admins, IAMasC-HR, IAMasC-ITOperators, or IAMasC-Auditors (read only). Each sign-in method can be turned off in settings.</p>
+          <p class="muted" style="font-size:.78rem">Access depends on your group: IAMasC-Admins, IAMasC-HR, IAMasC-ITOperators, or IAMasC-Auditors (read only). Each sign-in method can be turned off in iamasc.yaml.</p>
         </div>
       </div>
     </section>
@@ -634,8 +818,9 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
 (function () {
   var screens = Array.prototype.slice.call(document.querySelectorAll('.screen'));
   var links = Array.prototype.slice.call(document.querySelectorAll('.rail nav a'));
+  function isScreen(id) { var el = id && document.getElementById(id); return !!(el && el.classList.contains('screen')); }
   function show(id) {
-    if (!document.getElementById(id) || !document.getElementById(id).classList.contains('screen')) id = 'dashboard';
+    if (!isScreen(id)) id = 'dashboard';
     screens.forEach(function (s) { s.hidden = s.id !== id; });
     links.forEach(function (a) {
       if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'page');
@@ -646,7 +831,7 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
     var a = e.target.closest('a[href^="#"]');
     if (!a) return;
     var id = a.getAttribute('href').slice(1);
-    if (document.getElementById(id) && document.getElementById(id).classList.contains('screen')) {
+    if (isScreen(id)) {
       e.preventDefault();
       show(id);
       try { history.replaceState(null, '', '#' + id); } catch (err) { /* sandboxed viewer */ }
@@ -660,9 +845,20 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
       group.querySelectorAll('.chip').forEach(function (c) { c.setAttribute('aria-pressed', String(c === chip)); });
     });
   });
+  document.querySelectorAll('[role="tablist"]').forEach(function (list) {
+    list.addEventListener('click', function (e) {
+      var tab = e.target.closest('[role="tab"]');
+      if (!tab) return;
+      list.querySelectorAll('[role="tab"]').forEach(function (t) {
+        var on = t === tab;
+        t.setAttribute('aria-selected', String(on));
+        document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+      });
+    });
+  });
   var confirmBox = document.getElementById('t-confirm');
   var go = document.getElementById('t-go');
-  confirmBox.addEventListener('input', function () { go.disabled = confirmBox.value.trim() !== 'dwhitfield'; });
+  confirmBox.addEventListener('input', function () { go.disabled = confirmBox.value.trim() !== 'E-003318'; });
   document.querySelectorAll('form').forEach(function (f) { f.addEventListener('submit', function (e) { e.preventDefault(); }); });
   window.addEventListener('hashchange', function () { show(location.hash.slice(1)); });
   show((location.hash || '#dashboard').slice(1));
