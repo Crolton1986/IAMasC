@@ -657,7 +657,7 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
         <header><h2>Scheduled: HR changes</h2><div class="summary"><span class="pill ok">+6</span><span class="pill warn">~3</span><span class="pill bad">−9</span></div></header>
         <div class="body">
 <pre class="diff"><span class="k">  # E-004611 Grace Lindqvist · joiner · applies Oct 30 06:00</span>
-<span class="add">  + activedirectory.account   glindqvist   disabled, OU=HR,OU=Chicago,OU=Users</span>
+<span class="add">  + activedirectory.account   glindqvist   disabled, OU=HR,OU=Users</span>
 <span class="add">  + activedirectory.group     GG-AllStaff, GG-Chicago, GG-HR-All, GG-Workday-Readers</span>
 
 <span class="k">  # E-004127 Maria Okafor · mover Finance → Treasury · applies Nov 2 06:00</span>
@@ -729,7 +729,7 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
             <p class="muted">Matched policies: <a class="src" href="#policies">everyone</a> <a class="src" href="#policies">chicago-office</a> <a class="src" href="#policies">human-resources</a></p>
 <pre class="diff"><span class="add">+ activedirectory.account  glindqvist</span>
 <span class="c">    upn  grace.lindqvist@corp.example.com</span>
-<span class="c">    ou   OU=HR,OU=Chicago,OU=Users,DC=corp,DC=example,DC=com</span>
+<span class="c">    ou   OU=HR,OU=Users,DC=corp,DC=example,DC=com</span>
 <span class="c">    state disabled until Nov 2 07:00</span>
 <span class="add">+ activedirectory.group    GG-AllStaff</span>
 <span class="add">+ activedirectory.group    GG-Chicago</span>
@@ -882,7 +882,7 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
           <h1 id="h-providers">Providers</h1>
           <p>Each provider teaches IAMasC one application: what an account is and what kinds of permissions it has. Versions are pinned in <span class="mono">.iamasc.lock.yaml</span> and verified by hash and signature.</p>
         </div>
-        <div class="actions"><button class="btn" type="button">Browse registry</button></div>
+        <div class="actions"><a class="btn primary" href="#addprovider">Add provider</a></div>
       </div>
       <div class="apps">
         <article class="app-card">
@@ -933,6 +933,77 @@ legend { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 600; f
             <div><strong>iamasc/github</strong><p class="muted">Org membership and teams. <span class="mono">orgRole · single</span> <span class="mono">team · scoped</span></p></div>
             <div><strong>iamasc/sqlserver</strong><p class="muted">Logins and database grants. <span class="mono">grant · matrix</span></p></div>
             <div><strong>iamasc/snipeit</strong><p class="muted">Inventory data source: software seats and hardware assigned to each person.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Add provider wizard -->
+    <section class="screen" id="addprovider" aria-labelledby="h-addprov" hidden>
+      <div class="head">
+        <div>
+          <h1 id="h-addprov">Add provider: Active Directory</h1>
+          <p>This form is drawn from the provider's own config schema, so every provider gets the same wizard. Nothing is written to Active Directory until a plan is applied, and corp-chicago is in dry run.</p>
+        </div>
+      </div>
+      <ol class="steps"><li class="done">1 Choose</li><li class="on">2 Configure</li><li>3 Test</li><li>4 Save</li><li>5 Install</li><li>6 Import existing</li></ol>
+      <div class="grid2">
+        <form class="panel" id="prov-form">
+          <header><h2>Settings</h2><span class="addr mono">iamasc/activedirectory 1.0.0 · verified</span></header>
+          <div class="body">
+            <div class="form">
+              <div class="field"><label for="pv-domain">Domain</label><input id="pv-domain" class="mono" value="corp.example.com"></div>
+              <div class="field"><label for="pv-dc">Domain controller</label><input id="pv-dc" class="mono" placeholder="Locate automatically"><span class="hint">Leave empty to locate one automatically.</span></div>
+              <fieldset>
+                <legend>Service account</legend>
+                <div class="field"><label for="pv-user">Username</label><input id="pv-user" class="mono" value="CORP\svc-iamasc-chicago"></div>
+                <div class="field"><label for="pv-pass">Password</label><input id="pv-pass" type="password" placeholder="Enter to store in the vault" autocomplete="new-password"><span class="hint">Saved to the vault as <span class="mono">iamasc/corp-chicago/activedirectory/credential</span>. Never written to YAML or git.</span></div>
+              </fieldset>
+              <fieldset>
+                <legend>What this workspace may manage</legend>
+                <div class="field wide"><label for="pv-ous">OUs</label><textarea id="pv-ous" class="mono" rows="2">OU=Chicago,OU=Users,DC=corp,DC=example,DC=com
+OU=Disabled Users,DC=corp,DC=example,DC=com</textarea><span class="hint">IAMasC refuses to create, move, or change anything outside these.</span></div>
+                <div class="field"><label for="pv-prefix">Group prefixes</label><input id="pv-prefix" class="mono" value="GG-, CHI-"></div>
+              </fieldset>
+              <fieldset>
+                <legend>Naming</legend>
+                <div class="field"><label for="pv-user-tpl">Username template</label><input id="pv-user-tpl" class="mono" value="{{ first | initial | lower }}{{ last | lower | ascii }}"><span class="hint">Grace Lindqvist → <span class="mono">glindqvist</span></span></div>
+                <div class="field"><label for="pv-coll">On collision</label><select id="pv-coll"><option>Append a number</option><option>Use middle initial</option><option>Stop for a person to decide</option></select></div>
+              </fieldset>
+            </div>
+            <div class="actions"><button class="btn" type="button">Back</button><button class="btn primary" type="button">Test connection</button></div>
+          </div>
+        </form>
+
+        <div class="stack">
+          <div class="panel">
+            <header><h2>Connection test</h2><span class="pill ok">Passed 0.8s</span></header>
+            <div class="body">
+              <dl class="kv">
+                <dt>Bound as</dt><dd class="mono">CORP\svc-iamasc-chicago</dd>
+                <dt>Server</dt><dd class="mono">dc02.corp.example.com (located)</dd>
+                <dt>In scope</dt><dd>2 OUs · 203 users · 318 groups matching GG-, CHI-</dd>
+                <dt>Rights</dt><dd><span class="pill ok">Create users</span> <span class="pill ok">Change groups</span> <span class="pill warn">Can't move to OU=Disabled Users</span></dd>
+              </dl>
+              <div class="callout warn"><span>The service account lacks "Create child objects" on <span class="mono">OU=Disabled Users</span>, so offboarding moves would fail. Delegate it, then test again, or save anyway.</span></div>
+            </div>
+          </div>
+          <div class="panel">
+            <header><h2>Change to iamasc.yaml</h2><span class="muted">Opens a pull request in corp/iam-chicago</span></header>
+            <div class="body">
+<pre class="diff"><span class="c">  requiredProviders:</span>
+<span class="add">+   activedirectory: { source: iamasc/activedirectory, version: "~&gt; 1.0" }</span>
+<span class="c">  providers:</span>
+<span class="add">+   activedirectory:</span>
+<span class="add">+     domain: corp.example.com</span>
+<span class="add">+     credential: { secret: iamasc/corp-chicago/activedirectory/credential }</span>
+<span class="add">+     scope:</span>
+<span class="add">+       ous: ["OU=Chicago,OU=Users,...", "OU=Disabled Users,..."]</span>
+<span class="add">+       groupPrefixes: [GG-, CHI-]</span>
+<span class="c">  naming:</span>
+<span class="add">+   activedirectory: { username: "{{ first | initial | lower }}...", collision: append-number }</span></pre>
+              <div class="actions"><button class="btn primary" type="button">Save and open pull request</button></div>
+            </div>
           </div>
         </div>
       </div>

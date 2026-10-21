@@ -214,7 +214,7 @@ spec:
 | `matrix` | Privileges on objects | SQL `SELECT` on `finance.ledger` | An object × privilege grid |
 | `attribute` | A plain account property | AD `title`, `manager` | Shown under the account |
 
-A provider implements a fixed set of functions over that schema: `Get-Schema`, `Get-Catalog`, `Read-Account`, `Read-Permissions`, `Plan-Change`, `Invoke-Change`, `Import-Account`. Providers can mark permissions as privileged, which feeds the approval rules. See [ADR 0002](adr/0002-provider-contract.md).
+Each provider runs in its own process and answers a fixed set of JSON-RPC methods over that schema: `getSchema`, `configure`, `testConnection`, `getCatalog`, `readAccount`, `readPermissions`, `listAccounts`, `planChange`, `applyChange`. A crashing provider can't take down the server, and a Windows-only provider can later run on a different machine from the server. Providers can mark permissions as privileged, which feeds the approval rules. See [ADR 0002](adr/0002-provider-contract.md) and [ADR 0009](adr/0009-provider-protocol.md).
 
 ## Notifications
 
@@ -248,7 +248,7 @@ Providers, modules, and notifiers are versioned packages listed in a registry. T
 - `iamasc init` resolves version constraints, downloads packages, verifies their SHA-256 hashes and signatures, and writes `.iamasc.lock.yaml`.
 - Upgrades only happen through a pull request that changes the lock file, so they pass the same review and security gates as code.
 - Providers declare the protocol version they speak, so the core can refuse an incompatible one.
-- PowerShell modules are the package format underneath, so anyone who knows PowerShell can write a provider.
+- Providers are written in PowerShell with a small SDK that handles the protocol, so anyone who knows PowerShell can write one.
 
 See [ADR 0006](adr/0006-registry.md).
 
@@ -307,21 +307,7 @@ The UI is a client of the same engine the CLI uses. It never writes to an applic
 
 ## Build order
 
-Each step is its own feature branch and PR.
-
-1. **Config engine**: load and validate YAML against JSON Schema, `iamasc validate`.
-2. **State backend**: SQLite store, serials, locking, migrations.
-3. **Provider protocol** and a mock provider with every permission shape, with contract tests.
-4. **Plan**: compute desired state from person files and policies, diff against state and mock live, print the plan.
-5. **Apply** with jobs, retries, saved plans, scheduling, and audit.
-6. **Git writer**: create and update person files from HR events, signed commits, one workspace repo.
-7. **Active Directory provider**: accounts and groups, configurable naming, `import` for existing users.
-8. **HR data sources**: manual form and CSV, then ADP.
-9. **Server**: Pode app shell, sign-in, people pages, plans.
-10. **Approvals and notifications**: approval chains, requests, email, Teams, Slack, webhook.
-11. **Multiple workspaces** and shared module repos.
-12. **Registry**: `init`, lock file, hash and signature checks, private registry support.
-13. **Second provider** (Entra ID or Salesforce) to prove the model holds for a different permission shape.
+The backend design and the delivery plan, slice by slice, are in [architecture.md](architecture.md). Slice 1 is IAMasC without providers: config engine, store, web shell, new-hire and offboard forms writing person files, Entra sign-in, packaging. Slice 2 adds the provider host, the mock provider, the add-provider wizard, plan, and apply. Active Directory comes right after.
 
 ## Decisions made
 
@@ -337,6 +323,13 @@ Each step is its own feature branch and PR.
 | Notifications | Plugins. Email, Teams, Slack, and webhook ship by default. |
 | Registry | Git index repository with signed packages; private registries use the same format. |
 | License | Apache-2.0. |
+| Provider runtime | A separate process per provider, JSON-RPC over stdio ([ADR 0009](adr/0009-provider-protocol.md)). |
+| Adding a provider | A UI wizard generated from the provider's config schema, writing `iamasc.yaml` through git; files and CLI work too. |
+| First provider | `iamasc/mock`, a fake application with every permission shape, so the flow is tested anywhere. Then Active Directory. |
+| Sign-in first | Loopback-only dev mode and Entra ID. AD form sign-in with the AD provider. |
+| First workspace source | A local folder, git optional. Remote repos with the workspaces feature. |
+| Secrets | SecretManagement with SecretStore by default; any SecretManagement vault works. |
+| Hosting | Windows service and Linux container from the same release ([ADR 0010](adr/0010-hosting.md)). |
 
 ## Open questions
 

@@ -1,6 +1,6 @@
 # 0002: Providers with a published permission schema
 
-- Status: Accepted
+- Status: Accepted. Runtime and function list superseded by [0009](0009-provider-protocol.md).
 - Date: 2026-10-21
 
 ## Context
@@ -9,7 +9,7 @@ Every application models access differently: AD group membership, a Salesforce p
 
 ## Decision
 
-Each application is a **provider**: a versioned PowerShell module with a `provider.yaml` manifest. The manifest declares the protocol version, the account attributes, and each permission type with a **shape** the core understands: `single`, `set`, `scoped`, `matrix`, or `attribute`. Validation, planning, state, and the UI are all driven by that schema.
+Each application is a **provider**: a versioned package with a `provider.yaml` manifest and PowerShell code. The manifest declares the protocol version, the account attributes, and each permission type with a **shape** the core understands: `single`, `set`, `scoped`, `matrix`, or `attribute`. Validation, planning, state, and the UI are all driven by that schema.
 
 A provider exports a fixed set of functions:
 
