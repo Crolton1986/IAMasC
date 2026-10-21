@@ -13,3 +13,19 @@ updates:
     commit-message:
       prefix: chore
       include: scope
+
+  # .NET libraries loaded at runtime (deps/IAMasC.Deps.csproj). A version bump also needs the new
+  # Sha512 attribute, so these PRs fail Bootstrap until a maintainer updates the hash on purpose.
+  - package-ecosystem: nuget
+    directory: /deps
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 14
+    groups:
+      sqlite:
+        patterns: ['Microsoft.Data.Sqlite*', 'SQLitePCLRaw*']
+    commit-message:
+      prefix: chore
+      include: scope

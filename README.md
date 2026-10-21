@@ -8,7 +8,7 @@ Built on PowerShell 7 and [Pode](https://github.com/Badgerati/Pode). Active Dire
 
 ## Status
 
-Slice 1 in progress: the config engine and `iamasc validate` are in. Next: the data store and the web shell. See [docs/architecture.md](docs/architecture.md).
+Slice 1 in progress: the config engine (`iamasc validate`) and the SQLite store are in. Next: the web shell. See [docs/architecture.md](docs/architecture.md).
 
 ## How work gets shipped
 
@@ -21,7 +21,7 @@ Every change goes through a feature branch and a pull request into `main`. A PR 
 ## Validate a workspace
 
 ```powershell
-./build.ps1 -Task Bootstrap                          # once: installs pinned modules, including powershell-yaml
+./build.ps1 -Task Bootstrap                          # once: pinned modules, plus SQLite assemblies into lib/
 ./iamasc.ps1 validate ./examples/corp-chicago        # a workspace folder
 ./iamasc.ps1 validate ./examples/server/iamasc-server.yaml -Format json
 ```

@@ -57,9 +57,9 @@ Each `src/` folder is a PowerShell module with its own tests under `tests/<Modul
 
 ## Data store
 
-SQLite through `Microsoft.Data.Sqlite`, with the assembly restored by `build.ps1` from NuGet at a pinned version and checked against its SHA-512. One database file per server, under the data directory. Tables arrive through numbered migrations; the first slice needs only `schema_migrations`, `audit`, `hr_cache`, and `sessions`. State, plans, runs, and requests arrive with slice 2.
+SQLite through `Microsoft.Data.Sqlite`. The packages are declared in [`deps/IAMasC.Deps.csproj`](../deps/IAMasC.Deps.csproj) (so GitHub's dependency graph and Dependabot see them) with a pinned SHA-512 each; `build.ps1 -Task Bootstrap` downloads, verifies, and extracts them into `lib/` without needing the .NET SDK. Native SQLite builds ship for Windows, Linux (glibc and musl), and macOS on x64 and arm64. One database file per server, under the data directory. Tables arrive through numbered migrations; the first slice needs only `schema_migrations`, `audit`, `hr_cache`, and `sessions`. State, plans, runs, and requests arrive with slice 2.
 
-All queries are parameterized. Writes go through one serialized writer, which suits SQLite's single-writer model.
+All queries are parameterized. The database runs in WAL mode with foreign keys on. `Invoke-IamTransaction` wraps work in one transaction; nested calls join the outer one. The audit table rejects UPDATE and DELETE with triggers. Applied migrations are checksummed, so an edited migration or a database from a newer release stops startup with a clear message.
 
 ## Sign-in
 
@@ -167,7 +167,7 @@ Each line is one feature branch and one pull request into `main`.
 ### Slice 1: IAMasC without providers
 
 1. `feature/config-engine`: `IAMasC.Config` with JSON Schemas for every kind, `iamasc validate`, `examples/` validated in CI. **Done.**
-2. `feature/store`: `IAMasC.Store` with SQLite, migrations, and the audit log.
+2. `feature/store`: `IAMasC.Store` with SQLite, migrations, and the audit log. **Done.**
 3. `feature/web-shell`: Pode server, layout from the mockups, dev mode, `/health`, dashboard and people pages read from person files.
 4. `feature/new-hire`: new-hire and offboard forms write person files, with git commit when the folder is a repo.
 5. `feature/entra-signin`: Entra ID sign-in and role mapping.
