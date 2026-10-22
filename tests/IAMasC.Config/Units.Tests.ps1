@@ -111,3 +111,37 @@ Describe 'Find-IamPlaintextSecret' {
         }
     }
 }
+
+Describe 'Get-IamPersonStatus' {
+    BeforeAll {
+        $script:now = [datetimeoffset]::Parse('2026-10-22T12:00:00Z', [Globalization.CultureInfo]::InvariantCulture)
+        function ConvertTo-TestPerson($Start, $Termination) {
+            [pscustomobject]@{ Data = @{ spec = @{ hr = @{ startDate = $Start; terminationDate = $Termination } } } }
+        }
+    }
+
+    It '<Expected> when start is <Start> and termination is <Termination>' -ForEach @(
+        @{ Start = '2026-11-02'; Termination = $null; Expected = 'Pending' }
+        @{ Start = '2020-01-06'; Termination = $null; Expected = 'Active' }
+        @{ Start = '2020-01-06'; Termination = '2026-10-31'; Expected = 'Offboarding' }
+        @{ Start = '2020-01-06'; Termination = '2026-10-22'; Expected = 'Terminated' }
+        @{ Start = '2020-01-06'; Termination = '2026-10-01T17:00:00-05:00'; Expected = 'Terminated' }
+        @{ Start = $null; Termination = $null; Expected = 'Active' }
+    ) {
+        Get-IamPersonStatus -Person (ConvertTo-TestPerson $Start $Termination) -Now $now | Should -Be $Expected
+    }
+
+    It 'reads dates as UTC whatever the machine culture' {
+        $saved = [Globalization.CultureInfo]::CurrentCulture
+        try {
+            [Globalization.CultureInfo]::CurrentCulture = 'de-DE'
+            (ConvertTo-IamDate '2026-11-02').UtcDateTime | Should -Be ([datetime]::new(2026, 11, 2, 0, 0, 0, [DateTimeKind]::Utc))
+        } finally {
+            [Globalization.CultureInfo]::CurrentCulture = $saved
+        }
+    }
+
+    It 'returns nothing for a value that is not a date' {
+        ConvertTo-IamDate 'soon' | Should -BeNullOrEmpty
+    }
+}

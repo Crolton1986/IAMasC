@@ -61,9 +61,25 @@ SQLite through `Microsoft.Data.Sqlite`. The packages are declared in [`deps/IAMa
 
 All queries are parameterized. The database runs in WAL mode with foreign keys on. `Invoke-IamTransaction` wraps work in one transaction; nested calls join the outer one. The audit table rejects UPDATE and DELETE with triggers. Applied migrations are checksummed, so an edited migration or a database from a newer release stops startup with a clear message.
 
+## Web layer
+
+`server.ps1` validates the server settings and every workspace before it listens, and exits 1 naming the file and field on any error, so a typo never produces a half-working server. It then writes `server.started` to the audit log and starts Pode with the settings' `listen` address and port (`-Port` and `-DataPath` override them, which the tests use).
+
+Pages are rendered server-side by `IAMasC.Web`. Person files are user-editable YAML, so every value that came from a file or a request goes through one encoder, `ConvertTo-IamHtml` (`WebUtility.HtmlEncode`), and every value placed in a URL goes through `ConvertTo-IamUrlSegment`. Pages carry no inline script or style, and the stylesheet uses a system font stack, so the browser never needs anything outside the server.
+
+Every response, error pages included, carries:
+
+- `Content-Security-Policy: default-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self'`
+- `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY`
+- no `Server` header
+
+404 and 500 responses are plain pages; stack traces go to the error log under `<dataPath>/logs`, never to the browser. `/health` returns 200 with the version, the database status, and people and warning counts per workspace, or 503 when the database can't be opened.
+
+Statuses on the pages come from HR dates (`Get-IamPersonStatus`): Pending before the start date, Offboarding once a termination date is set, Terminated after it passes, Active otherwise.
+
 ## Sign-in
 
-- **Dev mode** (`auth.mode: dev`): a fixed local user with the Admin role. The server refuses to start in dev mode unless every endpoint binds to `127.0.0.1` or `::1`, and every page shows a red "Dev mode" banner.
+- **Dev mode** (`auth.mode: dev`): a fixed local user with the Admin role. The server refuses to start in dev mode unless it listens on `127.0.0.1`, `::1`, or `localhost`, and every page shows a red "Dev mode" banner.
 - **Entra ID**: OpenID Connect with Pode's Azure AD scheme. The app registration's `groups` claim maps to roles per workspace in server settings. The client secret comes from the vault.
 - AD form sign-in arrives with the AD provider.
 - Sessions are server-side with secure, HTTP-only, SameSite=Lax cookies. Every form posts with a CSRF token.
@@ -168,7 +184,7 @@ Each line is one feature branch and one pull request into `main`.
 
 1. `feature/config-engine`: `IAMasC.Config` with JSON Schemas for every kind, `iamasc validate`, `examples/` validated in CI. **Done.**
 2. `feature/store`: `IAMasC.Store` with SQLite, migrations, and the audit log. **Done.**
-3. `feature/web-shell`: Pode server, layout from the mockups, dev mode, `/health`, dashboard and people pages read from person files.
+3. `feature/web-shell`: Pode server, layout from the mockups, dev mode, `/health`, dashboard and people pages read from person files. **Done.**
 4. `feature/new-hire`: new-hire and offboard forms write person files, with git commit when the folder is a repo.
 5. `feature/entra-signin`: Entra ID sign-in and role mapping.
 6. `feature/packaging`: Windows service wrapper and container image in the release pipeline.

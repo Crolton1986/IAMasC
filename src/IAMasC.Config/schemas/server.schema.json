@@ -197,12 +197,44 @@
           }
         },
         "auth": {
-          "type": "object"
+          "type": "object",
+          "required": [
+            "mode"
+          ],
+          "properties": {
+            "mode": {
+              "enum": [
+                "dev",
+                "entra"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "listen": {
+          "type": "object",
+          "properties": {
+            "address": {
+              "type": "string",
+              "minLength": 1
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "dataPath": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Folder for the database and logs. Relative paths are resolved from the settings file."
         }
       },
       "additionalProperties": false,
       "required": [
-        "workspaces"
+        "workspaces",
+        "auth"
       ]
     }
   },
