@@ -8,7 +8,7 @@ Built on PowerShell 7 and [Pode](https://github.com/Badgerati/Pode). Active Dire
 
 ## Status
 
-Slice 1 in progress: the config engine (`iamasc validate`) and the SQLite store are in. Next: the web shell. See [docs/architecture.md](docs/architecture.md).
+Slice 1 in progress: the config engine (`iamasc validate`), the SQLite store, and a read-only web UI are in. Next: new-hire and offboard forms. See [docs/architecture.md](docs/architecture.md).
 
 ## How work gets shipped
 
@@ -17,6 +17,15 @@ Every change goes through a feature branch and a pull request into `main`. A PR 
 - [CONTRIBUTING.md](CONTRIBUTING.md): branch naming, commits, the full list of gates
 - [SECURITY.md](SECURITY.md): reporting vulnerabilities, verifying releases
 - [docs/repository-settings.md](docs/repository-settings.md): GitHub settings and the `main` ruleset
+
+## Run it locally
+
+```powershell
+./build.ps1 -Task Bootstrap                          # once
+./server.ps1 -Settings ./examples/server/dev.yaml
+```
+
+Open <http://127.0.0.1:8080>. Dev mode signs you in as a local admin and only listens on loopback. The example workspace's people show up on the dashboard and the people page; there are no providers yet, so the access section of each person is empty. Data and logs go to `out/dev-data`.
 
 ## Validate a workspace
 

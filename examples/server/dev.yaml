@@ -1,0 +1,15 @@
+# Local development: one workspace from this repo, dev sign-in, loopback only.
+#   ./server.ps1 -Settings ./examples/server/dev.yaml
+# Relative paths are resolved from this file's folder.
+apiVersion: iamasc.dev/v1
+kind: Server
+metadata:
+  name: dev
+spec:
+  listen: { address: 127.0.0.1, port: 8080 }
+  dataPath: ../../out/dev-data
+  auth: { mode: dev }
+  workspaces:
+    - name: corp-chicago
+      path: ../corp-chicago
+      match: { companyCode: "100" }

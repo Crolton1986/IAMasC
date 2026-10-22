@@ -7,7 +7,7 @@
     PowerShellVersion    = '7.4'
     CompatiblePSEditions = @('Core')
     RequiredModules      = @(@{ ModuleName = 'powershell-yaml'; RequiredVersion = '0.4.12' })
-    FunctionsToExport    = @('Import-IamDocument', 'Test-IamDocument', 'Import-IamWorkspace', 'Import-IamServerSetting')
+    FunctionsToExport    = @('Import-IamDocument', 'Test-IamDocument', 'Import-IamWorkspace', 'Import-IamServerSetting', 'Get-IamPersonStatus', 'ConvertTo-IamDate')
     CmdletsToExport      = @()
     VariablesToExport    = @()
     AliasesToExport      = @()
